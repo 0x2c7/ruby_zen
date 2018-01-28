@@ -49,14 +49,19 @@ module RubyZen
       end
     end
 
-    def find_or_create_class_object(klass, singleton_class = false)
+    def find_or_create_class_object(klass)
       return nil if klass.nil?
 
       if klass.name.nil?
         # Singleton class
         match = SINGLETON_CLASS_PATTERN.match(klass.to_s)
         return nil unless match
-        return find_or_create_class_object(Object.const_get(match[1]), true)
+        original_klass = Object.const_get(match[1])
+        @classes[original_klass.name] ||= RubyZen::ClassObject.new(
+          original_klass.name,
+          superclass: find_or_create_class_object(original_klass.superclass)
+        )
+        @classes[original_klass.name].singleton_class
       elsif !klass.respond_to?(:superclass)
         # Module
         @classes[klass.name] ||= RubyZen::ClassObject.new(
@@ -70,8 +75,6 @@ module RubyZen
           superclass: find_or_create_class_object(klass.superclass)
         )
       end
-
-      singleton_class ? @classes[klass.name].singleton_class : @classes[klass.name]
     end
 
     def create_method_object(native_method)
