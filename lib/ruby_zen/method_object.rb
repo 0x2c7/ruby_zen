@@ -8,5 +8,9 @@ module RubyZen
       @parameters = parameters
       @super_method = super_method
     end
+
+    def inpsect
+      "#<MethodObject: #{name}, parameters: #{parameters.inspect}, owner: #{owner.nil? ? '<empty>' : owner.fullname}, super_method: #{super_method.nil? ? '<empty>' : super_method.inspect}>"
+    end
   end
 end
