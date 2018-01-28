@@ -2,7 +2,6 @@ require 'yarv_generator'
 require 'pp'
 require 'ruby_zen'
 require 'logger'
-require 'byebug'
 
 code = File.read('./spec/definitions/method_1.rb')
 iseq = YarvGenerator.build_from_source(code)
