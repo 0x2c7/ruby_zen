@@ -20,14 +20,19 @@ module RubyZen
     end
 
     def index_class(klass)
-      RubyZen::Indexers::ClassIndexer.new(self, klass, logger: @logger).start
+      RubyZen::Indexers::ClassIndexer.new(
+        klass,
+        engine: self,
+        logger: @logger
+      ).start
     end
 
     def fetch_class(class_name)
-      @classes[class_name]
+      @classes[class_name.to_s]
     end
 
     def define_class(class_name)
+      class_name = class_name.to_s
       if @classes[class_name]
         @classes[class_name]
       elsif block_given?
@@ -44,7 +49,10 @@ module RubyZen
         begin
           klass = Object.const_get(class_name)
           RubyZen::Indexers::ClassIndexer.new(
-            self, klass, logger: @logger).start
+            klass,
+            engine: self,
+            logger: @logger
+          ).start
         rescue NameError => e
           @logger.debug("Fail to index #{class_name}: #{e}")
         end

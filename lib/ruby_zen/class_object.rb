@@ -20,6 +20,10 @@ module RubyZen
       end
     end
 
+    def instance_method_object(method_id)
+      @method_objects[method_id]
+    end
+
     def instance_method_objects(inherited = true)
       if inherited
         @method_objects.values

@@ -4,9 +4,9 @@ module RubyZen::Indexers
 
     SINGLETON_CLASS_PATTERN = /^\#\<Class\:([^\>]+)\>$/
 
-    def initialize(engine, klass, logger:)
-      @engine = engine
+    def initialize(klass, engine:, logger:)
       @klass = klass
+      @engine = engine
       @logger = logger
     end
 
