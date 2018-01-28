@@ -16,7 +16,11 @@ module RubyZen
     end
 
     def index_iseq(iseq)
-      raise "Type not support: #{iseq.class}" unless iseq.is_a?(YarvGenerator::Iseq)
+      RubyZen::Indexers::IseqIndexer.new(
+        iseq,
+        engine: self,
+        logger: @logger
+      ).start
     end
 
     def index_class(klass)
