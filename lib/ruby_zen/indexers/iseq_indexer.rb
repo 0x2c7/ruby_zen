@@ -64,6 +64,13 @@ module RubyZen::Indexers
         end
       end
 
+      if method_body.params[:opt]
+        lead_num = method_body.params[:lead_num] || 0
+        method_body.params[:opt].each_with_index do |opt, index|
+          parameters << [:opt, method_body.local_table[lead_num + index], opt]
+        end
+      end
+
       if method_body.params[:rest_start]
         parameters << [
           :rest,

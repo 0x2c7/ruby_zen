@@ -5,6 +5,15 @@ class Order
     puts b
   end
 
+  def finish(date, failed = false)
+    puts date
+    puts failed
+  end
+
+  def delete(permanent = false)
+    puts permanent
+  end
+
   def add(*items)
     puts items
   end
