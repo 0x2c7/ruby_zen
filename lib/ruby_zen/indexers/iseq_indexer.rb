@@ -2,52 +2,56 @@ module RubyZen::Indexers
   class IseqIndexer
     attr_reader :iseq
 
-    def initialize(iseq, engine:, logger:, scope: nil, stack: [])
+    def initialize(iseq, engine:, logger:)
       @engine = engine
       @iseq = iseq
       @logger = logger
-
-      # Fall back of scope is top binding
-      @top_binding = engine.fetch_class('Object')
-      @scope = scope || @top_binding
-      @stack = stack
+      @vm = RubyZen::VM.new(
+        scope: engine.fetch_class('Object'),
+        logger: logger
+      )
+      register_processors
     end
 
     def start
-      @logger.debug("Indexing iseq `#{iseq.label}`, type: `#{iseq.type}`, path: `#{iseq.path}`")
+      @vm.run(iseq)
+    end
 
-      iseq.instructions.each do |instruction|
-        case instruction.name
-        when 'putspecialobject'
-          handle_putspecialobject(instruction)
-        when 'putobject', 'putiseq'
-          @stack.push(instruction.operands[0])
-        when 'putnil'
-          @stack.push(nil)
-        when 'putself'
-          @stack.push(@scope)
-        when 'pop'
-          @stack.pop
-        when 'defineclass'
-          handle_defineclass(instruction)
-        when 'opt_send_without_block'
-          handle_opt_send_without_block(instruction)
-        when 'send'
-          handle_send(instruction)
-        else
-          @logger.debug("Skip instruction `#{instruction.name}`")
+    def register_processors
+      @vm.register_processor('defineclass') do |name, _body, superclass, _cbase|
+        @engine.define_class(name) do
+          RubyZen::ClassObject.new(name, superclass: superclass)
         end
+      end
+
+      @vm.register_processor('opt_send_without_block', 'define_method') do |receiver, method_name, method_body|
+        class_define_method(receiver, method_name, method_body)
+      end
+
+      @vm.register_processor('opt_send_without_block', 'instance_method') do |receiver, method_name|
+        receiver.instance_method_object(method_name)
+      end
+
+      @vm.register_processor('send', 'define_method') do |receiver, method_name, method_body|
+        class_define_method(receiver, method_name, method_body)
       end
     end
 
     private
 
-    def start_new_iseq(new_iseq, scope: nil)
-      self.class.new(
-        new_iseq,
-        engine: @engine, logger: @logger,
-        scope: scope || @scope, stack: @stack
-      ).start
+    def class_define_method(receiver, method_name, method_body)
+      if method_body.is_a?(RubyZen::MethodObject)
+        method_object = RubyZen::MethodObject.new(
+          method_name,
+          owner: receiver,
+          parameters: method_body.parameters,
+          super_method: method_body.super_method
+        )
+      else
+        method_object = create_method_object(method_name, method_body, owner: receiver)
+      end
+      receiver.add_method(method_object)
+      @logger.debug("Define method `#{method_name}` of class `#{receiver.fullname}`")
     end
 
     def create_method_object(method_name, method_body, owner: nil)
@@ -88,74 +92,6 @@ module RubyZen::Indexers
         method_name,
         parameters: parameters, owner: owner
       )
-    end
-
-    def handle_putspecialobject(instruction)
-      case instruction.operands[0]
-      when 1
-        @stack.push(@top_binding)
-      when 2
-        @stack.push(nil)
-      when 3
-        @stack.push(@scope)
-      else
-        @stack.push(nil)
-      end
-    end
-
-    def handle_defineclass(instruction)
-      class_name, body, _flags = instruction.operands
-      superclass = @stack.pop
-      _cbase = @stack.pop
-
-      class_object = @engine.define_class(class_name) do
-        RubyZen::ClassObject.new(
-          class_name, superclass: superclass
-        )
-      end
-      start_new_iseq(body, scope: class_object)
-      @stack.push(class_object)
-    end
-
-    def handle_opt_send_without_block(instruction)
-      call_info, _call_cache = instruction.operands
-      case call_info.mid
-      when :"core#define_method", :define_method
-        method_body = @stack.pop
-        method_name = @stack.pop
-
-        handle_define_method(@scope, method_name, method_body)
-      when :instance_method
-        method_name = @stack.pop
-        receiver = @stack.pop
-        @stack.push(receiver.instance_method_object(method_name))
-      end
-    end
-
-    def handle_send(instruction)
-      call_info, _call_cache, block_iseq = instruction.operands
-      case call_info.mid
-      when :define_method
-        method_name = @stack.pop
-        receiver = @stack.pop
-        handle_define_method(receiver, method_name, block_iseq)
-      end
-    end
-
-    def handle_define_method(owner, method_name, method_body)
-      if method_body.is_a?(RubyZen::MethodObject)
-        method_object = RubyZen::MethodObject.new(
-          method_name,
-          owner: owner,
-          parameters: method_body.parameters,
-          super_method: method_body.super_method
-        )
-      else
-        method_object = create_method_object(method_name, method_body, owner: owner)
-        start_new_iseq(method_body)
-      end
-      owner.add_method(method_object)
-      @logger.debug("Define method `#{method_name}` of class `#{owner.fullname}`")
     end
   end
 end
