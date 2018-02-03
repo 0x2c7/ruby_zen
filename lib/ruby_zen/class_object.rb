@@ -34,6 +34,11 @@ module RubyZen
       end
     end
 
+    def class_method_object(method_id)
+      return nil if singleton_class.nil?
+      singleton_class.instance_method_object(method_id)
+    end
+
     def class_method_objects(inherited = true)
       return [] if singleton_class.nil?
       singleton_class.instance_method_objects(inherited)
@@ -49,6 +54,10 @@ module RubyZen
 
     def inspect
       "#<ClassObject: #{fullname}, is_module: #{is_module}, is_singleton: #{is_singleton}, singleton_class: #{singleton_class.inspect}, superclass: #{superclass.nil? ? '<empty>' : superclass.name}>"
+    end
+
+    def to_s
+      "#<ClassObject: #{fullname}#{is_singleton ? '(singleton)' : ''}>"
     end
   end
 end
