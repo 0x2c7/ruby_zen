@@ -22,7 +22,7 @@ class Contract
 end
 
 class << Contract
-  def self.build(data)
+  def build(data)
     puts data
   end
 end
