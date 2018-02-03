@@ -18,28 +18,44 @@ module RubyZen::Indexers
     end
 
     def register_processors
-      @vm.register_processor('defineclass') do |name, _body, superclass, _cbase|
-        @engine.define_class(name) do
-          RubyZen::ClassObject.new(name, superclass: superclass)
+      @vm.register_processor('defineclass') do |name, _body, superclass, cbase|
+        if name == :singletonclass
+          cbase.singleton_class
+        else
+          @engine.define_class(name) do
+            RubyZen::ClassObject.new(name, superclass: superclass)
+          end
         end
       end
 
+      @vm.register_processor('getconstant') do |constant_name|
+        @engine.fetch_class(constant_name)
+      end
+
       @vm.register_processor('opt_send_without_block', 'define_method') do |receiver, method_name, method_body|
-        class_define_method(receiver, method_name, method_body)
+        define_instance_method(receiver, method_name, method_body)
       end
 
       @vm.register_processor('opt_send_without_block', 'instance_method') do |receiver, method_name|
         receiver.instance_method_object(method_name)
       end
 
+      @vm.register_processor('opt_send_without_block', 'method') do |receiver, method_name|
+        receiver.class_method_object(method_name)
+      end
+
       @vm.register_processor('send', 'define_method') do |receiver, method_name, method_body|
-        class_define_method(receiver, method_name, method_body)
+        define_instance_method(receiver, method_name, method_body)
+      end
+
+      @vm.register_processor('send', 'define_singleton_method') do |receiver, method_name, method_body|
+        define_class_method(receiver, method_name, method_body)
       end
     end
 
     private
 
-    def class_define_method(receiver, method_name, method_body)
+    def define_instance_method(receiver, method_name, method_body, singleton: false)
       if method_body.is_a?(RubyZen::MethodObject)
         method_object = RubyZen::MethodObject.new(
           method_name,
@@ -51,7 +67,24 @@ module RubyZen::Indexers
         method_object = create_method_object(method_name, method_body, owner: receiver)
       end
       receiver.add_method(method_object)
-      @logger.debug("Define method `#{method_name}` of class `#{receiver.fullname}`")
+
+      @logger.info("Detect instance method `#{method_name}` of class `#{receiver.to_s}`")
+    end
+
+    def define_class_method(receiver, method_name, method_body)
+      if method_body.is_a?(RubyZen::MethodObject)
+        method_object = RubyZen::MethodObject.new(
+          method_name,
+          owner: receiver.singleton_class,
+          parameters: method_body.parameters,
+          super_method: method_body.super_method
+        )
+      else
+        method_object = create_method_object(method_name, method_body, owner: receiver.singleton_class)
+      end
+      receiver.add_class_method(method_object)
+
+      @logger.info("Detect class method `#{method_name}` of class `#{receiver.to_s}`")
     end
 
     def create_method_object(method_name, method_body, owner: nil)
