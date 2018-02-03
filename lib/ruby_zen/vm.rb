@@ -10,11 +10,12 @@ module RubyZen
     end
 
     def run(iseq)
-      @logger.debug("Indexing iseq `#{iseq.label}`, type: `#{iseq.type}`, path: `#{iseq.path}`")
+      @logger.info("Indexing iseq `#{iseq.label}`, type: `#{iseq.type}`, path: `#{iseq.path}`")
 
-      iseq.instructions.each do |instruction|
+      iseq.instructions.each_with_index do |instruction, index|
         handler_name = "handle_#{instruction.name}".to_sym
         if respond_to?(handler_name, true)
+          @logger.debug("Running instruction `#{instruction.name}` with params #{instruction.operands}")
           send(handler_name, instruction)
         else
           @logger.debug("Skip instruction `#{instruction.name}`")
@@ -79,6 +80,14 @@ module RubyZen
       @stack.pop
     end
 
+    def handle_getconstant(instruction)
+      name = instruction.operands[0]
+      constant_value = dispatch_processor(
+        instruction.name, args: [name]
+      )
+      @stack.push(constant_value)
+    end
+
     def handle_defineclass(instruction)
       class_name, class_body, _flags = instruction.operands
       superclass = @stack.pop
@@ -126,6 +135,16 @@ module RubyZen
           args: [receiver, method_name]
         )
         @stack.push(method_object)
+      when :method
+        method_name = @stack.pop
+        receiver = @stack.pop
+
+        method_object = dispatch_processor(
+          instruction.name,
+          filter: 'method',
+          args: [receiver, method_name]
+        )
+        @stack.push(method_object)
       end
     end
 
@@ -139,6 +158,22 @@ module RubyZen
         method_object = dispatch_processor(
           instruction.name,
           filter: 'define_method',
+          args: [receiver, method_name, block_iseq]
+        )
+
+        @stack.new_frame
+        @stack.push(method_object)
+        @scope.push(@scope.last)
+        run(block_iseq)
+
+        @stack.push(method_object)
+      when :define_singleton_method
+        method_name = @stack.pop
+        receiver = @stack.pop
+
+        method_object = dispatch_processor(
+          instruction.name,
+          filter: 'define_singleton_method',
           args: [receiver, method_name, block_iseq]
         )
 
