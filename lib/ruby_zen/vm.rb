@@ -125,6 +125,25 @@ module RubyZen
         end
 
         @stack.push(method_object)
+      when :"core#define_singleton_method", :define_singleton_method
+        method_body = @stack.pop
+        method_name = @stack.pop
+        receiver = @stack.pop
+
+        method_object = dispatch_processor(
+          instruction.name,
+          filter: 'define_singleton_method',
+          args: [receiver, method_name, method_body]
+        )
+
+        if method_body.is_a?(YarvGenerator::Iseq)
+          @stack.new_frame
+          @stack.push(method_object)
+          @scope.push(@scope)
+          run(method_body)
+        end
+
+        @stack.push(method_object)
       when :instance_method
         method_name = @stack.pop
         receiver = @stack.pop
@@ -145,6 +164,8 @@ module RubyZen
           args: [receiver, method_name]
         )
         @stack.push(method_object)
+      else
+        @logger.debug("Method #{call_info.mid} not handled.")
       end
     end
 
@@ -183,6 +204,8 @@ module RubyZen
         run(block_iseq)
 
         @stack.push(method_object)
+      else
+        @logger.debug("Method #{call_info.mid} not handled.")
       end
     end
 

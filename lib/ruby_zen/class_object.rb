@@ -49,7 +49,7 @@ module RubyZen
     end
 
     def add_class_method(method_object)
-      singleton_class.add_method(method_object)
+      singleton_class.add_method(method_object) unless singleton_class.nil?
     end
 
     def inspect

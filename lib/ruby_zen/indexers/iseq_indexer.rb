@@ -36,6 +36,10 @@ module RubyZen::Indexers
         define_instance_method(receiver, method_name, method_body)
       end
 
+      @vm.register_processor('opt_send_without_block', 'define_singleton_method') do |receiver, method_name, method_body|
+        define_class_method(receiver, method_name, method_body)
+      end
+
       @vm.register_processor('opt_send_without_block', 'instance_method') do |receiver, method_name|
         receiver.instance_method_object(method_name)
       end
