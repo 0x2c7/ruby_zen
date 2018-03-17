@@ -1,4 +1,3 @@
-puts 1
 class Order
   def calculate(a, b)
     puts a
