@@ -28,8 +28,16 @@ module RubyZen::Indexers
         end
       end
 
-      @vm.register_processor('getconstant') do |constant_name|
-        @engine.fetch_class(constant_name)
+      @vm.register_processor('getconstant') do |name, namespace|
+        name = "#{namespace.fullname}::#{name}" unless namespace.nil?
+        const = @engine.fetch_class(name)
+        if const.nil?
+          @engine.define_class(name) do
+            RubyZen::ClassObject.new(name, is_module: true)
+          end
+        else
+          const
+        end
       end
 
       @vm.register_processor('opt_send_without_block', 'define_method') do |receiver, method_name, method_body|

@@ -82,8 +82,9 @@ module RubyZen
 
     def handle_getconstant(instruction)
       name = instruction.operands[0]
+      klass = @stack.pop
       constant_value = dispatch_processor(
-        instruction.name, args: [name]
+        instruction.name, args: [name, klass]
       )
       @stack.push(constant_value)
     end
