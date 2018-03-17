@@ -1,16 +1,17 @@
 module RubyZen
   class ClassObject
     attr_reader :name, :fullname, :is_singleton, :is_module,
-                :superclass, :singleton_class
+                :superclass, :singleton_class, :namespace
 
 
-    def initialize(fullname, is_module: false, is_singleton: false, superclass: nil)
+    def initialize(fullname, is_module: false, is_singleton: false, superclass: nil, namespace: nil)
       @fullname = fullname.to_s
       @name = @fullname.split('::').last
 
       @is_module = is_module
       @is_singleton = is_singleton
       @superclass = superclass
+      @namespace = namespace
       @method_objects = {}
 
       unless is_singleton

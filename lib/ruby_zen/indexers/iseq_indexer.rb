@@ -6,10 +6,7 @@ module RubyZen::Indexers
       @engine = engine
       @iseq = iseq
       @logger = logger
-      @vm = RubyZen::VM.new(
-        scope: engine.fetch_class('Object'),
-        logger: logger
-      )
+      @vm = RubyZen::VM.new(logger: logger)
       register_processors
     end
 
@@ -18,12 +15,22 @@ module RubyZen::Indexers
     end
 
     def register_processors
-      @vm.register_processor('defineclass') do |name, _body, superclass, cbase|
-        if name == :singletonclass
+      @vm.register_processor('defineclass') do |name, _body, superclass, cbase, flags|
+        name = "#{cbase.fullname}::#{name}" unless cbase.nil?
+        if flags & 0x1
+          # Singleton class
           cbase.singleton_class
-        else
+        elsif flags & 0x2
+          # Module
           @engine.define_class(name) do
-            RubyZen::ClassObject.new(name, superclass: superclass)
+            RubyZen::ClassObject.new(
+              name, is_module: true, namespace: cbase
+            )
+          end
+        else
+          # Normal class
+          @engine.define_class(name) do
+            RubyZen::ClassObject.new(name, superclass: superclass, namespace: cbase)
           end
         end
       end

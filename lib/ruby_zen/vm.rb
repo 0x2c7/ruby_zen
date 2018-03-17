@@ -90,13 +90,13 @@ module RubyZen
     end
 
     def handle_defineclass(instruction)
-      class_name, class_body, _flags = instruction.operands
+      class_name, class_body, flags = instruction.operands
       superclass = @stack.pop
       cbase = @stack.pop
 
       class_value = dispatch_processor(
         instruction.name,
-        args: [class_name, class_body, superclass, cbase]
+        args: [class_name, class_body, superclass, cbase, flags]
       )
 
       @stack.new_frame
