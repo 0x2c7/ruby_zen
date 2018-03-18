@@ -214,5 +214,14 @@ module RubyZen
       @stack.leave_frame
       @scope.pop
     end
+
+    def handle_getinlinecache(_instruction)
+      @stack.push(nil)
+    end
+
+    def handle_setinlinecache(_instruction)
+      val = @stack.pop
+      @stack.push(val)
+    end
   end
 end
