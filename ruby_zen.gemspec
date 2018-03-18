@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "byebug"
   spec.add_development_dependency "rubocop"
 
-  spec.add_dependency 'yarv_generator', '~> 0.2.0'
+  spec.add_dependency 'yarv_generator', '~> 0.2.1'
 end
