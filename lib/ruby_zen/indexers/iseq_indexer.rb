@@ -17,10 +17,10 @@ module RubyZen::Indexers
     def register_processors
       @vm.register_processor('defineclass') do |name, _body, superclass, cbase, flags|
         name = "#{cbase.fullname}::#{name}" unless cbase.nil?
-        if flags & 0x1
+        if (flags & 0x1) > 0
           # Singleton class
           cbase.singleton_class
-        elsif flags & 0x2
+        elsif (flags & 0x2) > 0
           # Module
           @engine.define_class(name) do
             RubyZen::ClassObject.new(
