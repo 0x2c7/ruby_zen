@@ -1,3 +1,4 @@
+require 'yarv_generator'
 require 'ruby_zen/version'
 require 'ruby_zen/indexers/class_indexer'
 require 'ruby_zen/indexers/iseq_indexer'
