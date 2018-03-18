@@ -6,12 +6,16 @@ module RubyZen
       Proc Binding Math GC Enumerator Thread
     ].freeze
 
-    def initialize(logger:)
+    def initialize(
+      logger:,
+      include_internal_class: false
+    )
       @classes = {}
       @logger = logger
 
       @logger.info('Starting RubyZen engine...')
-      index_internal_classes
+
+      index_internal_classes if include_internal_class
       @logger.info('RubyZen is ready!')
     end
 
