@@ -11,7 +11,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "Gemfile.lock" }}
+            - v1-dependencies-{{ checksum "ruby_zen.gemspec" }}
             - v1-dependencies-
 
       - run:
@@ -22,7 +22,7 @@ jobs:
       - save_cache:
           paths:
             - ./vendor/bundle
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+          key: v1-dependencies-{{ checksum "ruby_zen.gemspec" }}
 
       - run: bundle exec rspec
       - run: bundle exec rubocop
