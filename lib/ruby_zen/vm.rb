@@ -165,6 +165,33 @@ module RubyZen
           args: [receiver, method_name]
         )
         @stack.push(method_object)
+      when :include
+        module_definition = @stack.pop
+        receiver = @stack.pop
+
+        dispatch_processor(
+          instruction.name,
+          filter: 'include',
+          args: [receiver, module_definition]
+        )
+      when :extend
+        module_definition = @stack.pop
+        receiver = @stack.pop
+
+        dispatch_processor(
+          instruction.name,
+          filter: 'extend',
+          args: [receiver, module_definition]
+        )
+      when :prepend
+        module_definition = @stack.pop
+        receiver = @stack.pop
+
+        dispatch_processor(
+          instruction.name,
+          filter: 'prepend',
+          args: [receiver, module_definition]
+        )
       else
         @logger.debug("Method #{call_info.mid} not handled.")
       end
