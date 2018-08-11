@@ -1,0 +1,34 @@
+version: 2
+jobs:
+  unit:
+    docker:
+      - image: circleci/ruby:2.4.1-node
+        environment:
+          LOG_LEVEL: DEBUG
+          LOG_ENABLED: true
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "ruby_zen.gemspec" }}
+            - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            bundle install --jobs=4 --retry=3 --path vendor/bundle
+
+      - save_cache:
+          paths:
+            - ./vendor/bundle
+          key: v1-dependencies-{{ checksum "ruby_zen.gemspec" }}
+
+      - run: bundle exec rspec
+      - run: bundle exec rubocop
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - unit

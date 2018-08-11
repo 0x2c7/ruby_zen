@@ -1,5 +1,40 @@
 require "bundler/setup"
 require "ruby_zen"
+require 'byebug'
+require 'rspec'
+require 'logger'
+
+class TestingLogger
+  def initialize(output)
+    @logger = Logger.new(output)
+  end
+
+  def debug(*args)
+    @logger.debug(*args) if logger_enabled?
+  end
+
+  def info(*args)
+    @logger.info(*args) if logger_enabled?
+  end
+
+  def warning(*args)
+    @logger.warning(*args) if logger_enabled?
+  end
+
+  def error(*args)
+    @logger.error(*args) if logger_enabled?
+  end
+
+  def fatal(*args)
+    @logger.fatal(*args) if logger_enabled?
+  end
+
+  private
+
+  def logger_enabled?
+    !ENV['LOGGER_ENABLED'].nil?
+  end
+end
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
