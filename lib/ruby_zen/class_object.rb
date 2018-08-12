@@ -1,16 +1,16 @@
 module RubyZen
   class ClassObject
-    attr_reader :name, :fullname, :is_singleton, :is_module,
-                :superclass, :singleton_class, :namespace,
+    attr_reader :name, :fullname, :is_singleton, :singleton_class,
                 :included_modules, :extended_modules, :prepended_modules
+    attr_accessor :is_defined, :is_module, :superclass, :namespace
 
-
-    def initialize(fullname, is_module: false, is_singleton: false, superclass: nil, namespace: nil)
+    def initialize(fullname, is_module: false, is_singleton: false, superclass: nil, namespace: nil, is_defined: true)
       @fullname = fullname.to_s
       @name = @fullname.split('::').last
 
       @is_module = is_module
       @is_singleton = is_singleton
+      @is_defined = is_defined
       @superclass = superclass
       @namespace = namespace
       @method_objects = {}
@@ -40,19 +40,35 @@ module RubyZen
     end
 
     def available_instance_methods
-      methods = superclass.available_instance_methods unless superclass.nil?
+      return {} unless is_defined
+      methods = superclass.nil? ? {} : superclass.available_instance_methods
 
-      @included_modules.each do |included_module|
-        methods.merge!(included_module.available_instance_methods)
+      @included_modules.each do |_module_name, module_definition|
+        methods.merge!(module_definition.available_instance_methods)
       end
 
       methods.merge!(@method_objects)
 
-      @prepended_modules.each do |prepended_module|
-        methods.merge!(prepended_module.available_instance_methods)
+      @prepended_modules.each do |_module_name, module_definition|
+        methods.merge!(module_definition.available_instance_methods)
       end
 
       methods
+    end
+
+    def available_class_methods(as_module = false)
+      return {} unless is_defined
+      methods = superclass.nil? ? {} : superclass.available_class_methods
+
+      if is_module && !as_module
+        methods.merge!(available_instance_methods)
+      else
+        @extended_modules.each do |_module_name, module_definition|
+          methods.merge!(module_definition.available_instance_methods)
+        end
+      end
+
+      methods.merge!(singleton_class.available_instance_methods)
     end
 
     def class_method_object(method_id)
@@ -83,6 +99,18 @@ module RubyZen
 
     def prepend_module(module_definition)
       @prepended_modules[module_definition.name] = module_definition
+    end
+
+    def update_module(namespace)
+      self.is_defined = true
+      self.is_module = true
+      self.namespace = namespace
+    end
+
+    def update_class(namespace, superclass)
+      self.is_defined = true
+      self.namespace = namespace
+      self.superclass = superclass
     end
 
     def inspect

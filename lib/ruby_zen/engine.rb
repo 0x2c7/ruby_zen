@@ -41,7 +41,7 @@ module RubyZen
 
     def define_class(class_name)
       class_name = class_name.to_s
-      if @classes[class_name]
+      if @classes[class_name] && @classes[class_name].is_defined
         @classes[class_name]
       elsif block_given?
         @classes[class_name] = yield
