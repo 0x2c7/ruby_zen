@@ -68,7 +68,7 @@ RSpec.describe 'index mixin-ed class' do
       indexed_module_one = engine.fetch_class(module_1)
       indexed_module_two = engine.fetch_class(module_2)
       indexed_class = engine.fetch_class(class_name)
-      instance_methods = indexed_class.available_instance_methods
+      instance_methods = indexed_class.instance_method_objects
 
       expect(instance_methods.length).to eq(4)
       expect(instance_methods[:breathe].owner).to eq(indexed_class)
@@ -134,7 +134,7 @@ RSpec.describe 'index mixin-ed class' do
       indexed_module_one = engine.fetch_class(module_1)
       indexed_module_two = engine.fetch_class(module_2)
       indexed_class = engine.fetch_class(class_name)
-      class_methods = indexed_class.available_class_methods
+      class_methods = indexed_class.class_method_objects
 
       expect(class_methods.length).to eq(4)
       expect(class_methods[:breathe].owner).to eq(indexed_class.singleton_class)
@@ -200,7 +200,7 @@ RSpec.describe 'index mixin-ed class' do
       indexed_module_one = engine.fetch_class(module_1)
       indexed_module_two = engine.fetch_class(module_2)
       indexed_class = engine.fetch_class(class_name)
-      instance_methods = indexed_class.available_instance_methods
+      instance_methods = indexed_class.instance_method_objects
 
       expect(instance_methods.length).to eq(4)
       expect(instance_methods[:breathe].owner).to eq(indexed_class)
@@ -272,7 +272,7 @@ RSpec.describe 'index mixin-ed class' do
       indexed_module_one = engine.fetch_class(module_1)
       indexed_module_two = engine.fetch_class(module_2)
       indexed_class = engine.fetch_class(class_name)
-      instance_methods = indexed_class.available_instance_methods
+      instance_methods = indexed_class.instance_method_objects
 
       expect(instance_methods.length).to eq(4)
       expect(instance_methods[:breathe].owner).to eq(indexed_class)
@@ -426,7 +426,7 @@ RSpec.describe 'index mixin-ed class' do
 
       it 'returns correct accessible instance methods' do
         indexed_module = engine.fetch_class(module_3)
-        instance_methods = indexed_module.available_instance_methods
+        instance_methods = indexed_module.instance_method_objects
 
         expect(instance_methods.length).to eq(5)
         expect(instance_methods[:soar].owner).to eq(indexed_module_one)
@@ -438,7 +438,7 @@ RSpec.describe 'index mixin-ed class' do
 
       it 'returns correct accessible class method' do
         indexed_module = engine.fetch_class(module_3)
-        class_methods = indexed_module.available_class_methods(true)
+        class_methods = indexed_module.class_method_objects(true)
 
         expect(class_methods.length).to eq(3)
         expect(class_methods[:soar].owner).to eq(indexed_module_two)
@@ -457,7 +457,7 @@ RSpec.describe 'index mixin-ed class' do
 
       it 'returns correct accessible instance method' do
         indexed_class = engine.fetch_class(grandparent_class)
-        instance_methods = indexed_class.available_instance_methods
+        instance_methods = indexed_class.instance_method_objects
 
         expect(instance_methods.length).to eq(1)
         expect(instance_methods[:gardening].owner).to eq(indexed_class)
@@ -465,7 +465,7 @@ RSpec.describe 'index mixin-ed class' do
 
       it 'returns correct accessible class method' do
         indexed_class = engine.fetch_class(grandparent_class)
-        class_methods = indexed_class.available_class_methods
+        class_methods = indexed_class.class_method_objects
 
         expect(class_methods.length).to eq(5)
         expect(class_methods[:soar].owner).to eq(indexed_class.singleton_class)
@@ -488,7 +488,7 @@ RSpec.describe 'index mixin-ed class' do
       it 'returns correct accessible instance method' do
         indexed_class = engine.fetch_class(parent_class)
         indexed_parent_class = engine.fetch_class(grandparent_class)
-        instance_methods = indexed_class.available_instance_methods
+        instance_methods = indexed_class.instance_method_objects
 
         expect(instance_methods.length).to eq(6)
         expect(instance_methods[:soar].owner).to eq(indexed_module_two)
@@ -502,7 +502,7 @@ RSpec.describe 'index mixin-ed class' do
       it 'returns correct accessible class method' do
         indexed_class = engine.fetch_class(parent_class)
         indexed_parent_class = engine.fetch_class(grandparent_class)
-        class_methods = indexed_class.available_class_methods
+        class_methods = indexed_class.class_method_objects
 
         expect(class_methods.length).to eq(11)
         expect(class_methods[:stroll].owner).to eq(indexed_class.singleton_class)
@@ -536,7 +536,7 @@ RSpec.describe 'index mixin-ed class' do
       it 'returns correct accessible instance method' do
         indexed_class = engine.fetch_class(class_name)
         indexed_grandparent_class = engine.fetch_class(grandparent_class)
-        instance_methods = indexed_class.available_instance_methods
+        instance_methods = indexed_class.instance_method_objects
 
         expect(instance_methods.length).to eq(7)
         expect(instance_methods[:breathe].owner).to eq(indexed_class)
@@ -552,7 +552,7 @@ RSpec.describe 'index mixin-ed class' do
         indexed_class = engine.fetch_class(class_name)
         indexed_parent_class = engine.fetch_class(parent_class)
         indexed_grandparent_class = engine.fetch_class(grandparent_class)
-        class_methods = indexed_class.available_class_methods
+        class_methods = indexed_class.class_method_objects
 
         expect(class_methods.length).to eq(11)
         expect(class_methods[:soar].owner).to eq(indexed_module_two)

@@ -28,44 +28,20 @@ module RubyZen
       @method_objects[method_id]
     end
 
-    def instance_method_objects(inherited = true)
-      if inherited
-        @method_objects.values
-      else
-        @method_objects.values.select do |method_object|
-          method_object.owner == self
-        end
-      end
-    end
-
-    def available_instance_methods
-      methods = superclass.nil? ? {} : superclass.available_instance_methods
+    def instance_method_objects
+      methods = superclass.nil? ? {} : superclass.instance_method_objects
 
       @included_modules.each do |_module_name, module_definition|
-        methods.merge!(module_definition.available_instance_methods)
+        methods.merge!(module_definition.instance_method_objects)
       end
 
       methods.merge!(@method_objects)
 
       @prepended_modules.each do |_module_name, module_definition|
-        methods.merge!(module_definition.available_instance_methods)
+        methods.merge!(module_definition.instance_method_objects)
       end
 
       methods
-    end
-
-    def available_class_methods(as_module = false)
-      methods = superclass.nil? ? {} : superclass.available_class_methods
-
-      if is_module && !as_module
-        methods.merge!(available_instance_methods)
-      else
-        @extended_modules.each do |_module_name, module_definition|
-          methods.merge!(module_definition.available_instance_methods)
-        end
-      end
-
-      methods.merge!(singleton_class.available_instance_methods)
     end
 
     def class_method_object(method_id)
@@ -73,9 +49,18 @@ module RubyZen
       singleton_class.instance_method_object(method_id)
     end
 
-    def class_method_objects(inherited = true)
-      return [] if singleton_class.nil?
-      singleton_class.instance_method_objects(inherited)
+    def class_method_objects(as_module = false)
+      methods = superclass.nil? ? {} : superclass.class_method_objects
+
+      if is_module && !as_module
+        methods.merge!(instance_method_objects)
+      else
+        @extended_modules.each do |_module_name, module_definition|
+          methods.merge!(module_definition.instance_method_objects)
+        end
+      end
+
+      methods.merge!(singleton_class.instance_method_objects)
     end
 
     def add_method(method_object)
