@@ -40,7 +40,7 @@ module RubyZen::Indexers
         const = @engine.fetch_class(name)
         if const.nil?
           @engine.define_class(name) do
-            RubyZen::ClassObject.new(name)
+            RubyZen::ClassObject.new(name, is_module: true)
           end
         else
           const
