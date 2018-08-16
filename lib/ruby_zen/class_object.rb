@@ -2,15 +2,14 @@ module RubyZen
   class ClassObject
     attr_reader :name, :fullname, :is_singleton, :singleton_class,
                 :included_modules, :extended_modules, :prepended_modules
-    attr_accessor :is_defined, :is_module, :superclass, :namespace
+    attr_accessor :is_module, :superclass, :namespace
 
-    def initialize(fullname, is_module: false, is_singleton: false, superclass: nil, namespace: nil, is_defined: true)
+    def initialize(fullname, is_module: false, is_singleton: false, superclass: nil, namespace: nil)
       @fullname = fullname.to_s
       @name = @fullname.split('::').last
 
       @is_module = is_module
       @is_singleton = is_singleton
-      @is_defined = is_defined
       @superclass = superclass
       @namespace = namespace
       @method_objects = {}
@@ -40,7 +39,6 @@ module RubyZen
     end
 
     def available_instance_methods
-      return {} unless is_defined
       methods = superclass.nil? ? {} : superclass.available_instance_methods
 
       @included_modules.each do |_module_name, module_definition|
@@ -57,7 +55,6 @@ module RubyZen
     end
 
     def available_class_methods(as_module = false)
-      return {} unless is_defined
       methods = superclass.nil? ? {} : superclass.available_class_methods
 
       if is_module && !as_module
@@ -99,18 +96,6 @@ module RubyZen
 
     def prepend_module(module_definition)
       @prepended_modules[module_definition.name] = module_definition
-    end
-
-    def update_module(namespace)
-      self.is_defined = true
-      self.is_module = true
-      self.namespace = namespace
-    end
-
-    def update_class(namespace, superclass)
-      self.is_defined = true
-      self.namespace = namespace
-      self.superclass = superclass
     end
 
     def inspect

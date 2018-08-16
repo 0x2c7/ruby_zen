@@ -41,12 +41,18 @@ module RubyZen
 
     def define_class(class_name)
       class_name = class_name.to_s
-      if @classes[class_name] && @classes[class_name].is_defined
-        @classes[class_name]
-      elsif block_given?
-        @classes[class_name] = yield
+      return @classes[class_name] unless block_given?
+
+      class_object = yield
+      if @classes[class_name]
+        # Finalize class object type
+        @classes[class_name].tap do |old_object|
+          old_object.is_module = class_object.is_module
+          old_object.namespace = class_object.namespace
+          old_object.superclass = class_object.superclass
+        end
       else
-        raise 'This method requires a block'
+        @classes[class_name] = class_object
       end
     end
 

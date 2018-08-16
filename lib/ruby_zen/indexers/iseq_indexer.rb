@@ -17,26 +17,16 @@ module RubyZen::Indexers
     def register_processors
       @vm.register_processor('defineclass') do |name, _body, superclass, cbase, flags|
         name = "#{cbase.fullname}::#{name}" unless cbase.nil?
-        klass = @engine.fetch_class(name)
         if (flags & 0x1) > 0
           # Singleton class
           cbase.singleton_class
         elsif (flags & 0x2) > 0
           # Module
-          if klass
-            klass.update_module(cbase)
-            klass
-          else
-            @engine.define_class(name) do
-              RubyZen::ClassObject.new(
-                name, is_module: true, namespace: cbase
-              )
-            end
+          @engine.define_class(name) do
+            RubyZen::ClassObject.new(
+              name, is_module: true, namespace: cbase
+            )
           end
-        elsif klass
-          # Normal class
-          klass.update_class(cbase, superclass)
-          klass
         else
           # Normal class
           @engine.define_class(name) do
@@ -50,7 +40,7 @@ module RubyZen::Indexers
         const = @engine.fetch_class(name)
         if const.nil?
           @engine.define_class(name) do
-            RubyZen::ClassObject.new(name, is_defined: false)
+            RubyZen::ClassObject.new(name)
           end
         else
           const
