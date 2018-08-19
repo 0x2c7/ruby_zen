@@ -19,9 +19,9 @@ def test_index(file, engine, *classes)
   classes.each do |klass|
     puts "========== #{klass} =========="
     puts "== Instance Methods =="
-    pp engine.fetch_class(klass).instance_method_objects(false)
+    pp engine.fetch_class(klass).instance_method_objects
     puts "== Class Methods =="
-    pp engine.fetch_class(klass).class_method_objects(false)
+    pp engine.fetch_class(klass).class_method_objects
   end
 end
 
