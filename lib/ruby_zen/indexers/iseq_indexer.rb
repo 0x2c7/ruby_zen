@@ -63,6 +63,18 @@ module RubyZen::Indexers
         receiver.class_method_object(method_name)
       end
 
+      @vm.register_processor('opt_send_without_block', 'include') do |receiver, module_definition|
+        receiver.include_module(module_definition)
+      end
+
+      @vm.register_processor('opt_send_without_block', 'extend') do |receiver, module_definition|
+        receiver.extend_module(module_definition)
+      end
+
+      @vm.register_processor('opt_send_without_block', 'prepend') do |receiver, module_definition|
+        receiver.prepend_module(module_definition)
+      end
+
       @vm.register_processor('send', 'define_method') do |receiver, method_name, method_body|
         define_instance_method(receiver, method_name, method_body)
       end
