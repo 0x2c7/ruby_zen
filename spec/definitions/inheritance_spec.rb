@@ -116,7 +116,7 @@ RSpec.describe 'index class with the involvement of inheritance' do
   context 'accessible methods' do
     context 'ParentClass' do
       it 'returns correct accessible instance methods' do
-        instance_methods = parent_class.available_instance_methods
+        instance_methods = parent_class.instance_method_objects
 
         expect(instance_methods.length).to eq(2)
         expect(instance_methods[:greetings].owner).to eq(parent_class)
@@ -124,7 +124,7 @@ RSpec.describe 'index class with the involvement of inheritance' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = parent_class.available_class_methods
+        class_methods = parent_class.class_method_objects
 
         expect(class_methods.length).to eq(2)
         expect(class_methods[:print].owner).to eq(parent_class.singleton_class)
@@ -134,7 +134,7 @@ RSpec.describe 'index class with the involvement of inheritance' do
 
     context 'ChildClass' do
       it 'returns correct accessible instance methods' do
-        instance_methods = child_class.available_instance_methods
+        instance_methods = child_class.instance_method_objects
 
         expect(instance_methods.length).to eq(3)
         expect(instance_methods[:greetings].owner).to eq(child_class)
@@ -143,7 +143,7 @@ RSpec.describe 'index class with the involvement of inheritance' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = child_class.available_class_methods
+        class_methods = child_class.class_method_objects
 
         expect(class_methods.length).to eq(5)
         expect(class_methods[:print].owner).to eq(parent_class.singleton_class)
@@ -156,7 +156,7 @@ RSpec.describe 'index class with the involvement of inheritance' do
 
     context 'AnotherChildClass' do
       it 'returns correct accessible instance methods' do
-        instance_methods = another_child_class.available_instance_methods
+        instance_methods = another_child_class.instance_method_objects
 
         expect(instance_methods.length).to eq(2)
         expect(instance_methods[:draw].owner).to eq(parent_class)
@@ -164,7 +164,7 @@ RSpec.describe 'index class with the involvement of inheritance' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = another_child_class.available_class_methods
+        class_methods = another_child_class.class_method_objects
 
         expect(class_methods.length).to eq(4)
         expect(class_methods[:print].owner).to eq(parent_class.singleton_class)
@@ -176,7 +176,7 @@ RSpec.describe 'index class with the involvement of inheritance' do
 
     context 'GrandChildClass' do
       it 'returns correct accessible instance methods' do
-        instance_methods = grandchild_class.available_instance_methods
+        instance_methods = grandchild_class.instance_method_objects
 
         expect(instance_methods.length).to eq(3)
         expect(instance_methods[:greetings].owner).to eq(grandchild_class)
@@ -185,7 +185,7 @@ RSpec.describe 'index class with the involvement of inheritance' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = grandchild_class.available_class_methods
+        class_methods = grandchild_class.class_method_objects
 
         expect(class_methods.length).to eq(5)
         expect(class_methods[:build].owner).to eq(grandchild_class.singleton_class)

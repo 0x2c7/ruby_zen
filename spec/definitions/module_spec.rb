@@ -238,7 +238,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible instance methods' do
-        instance_methods = indexed_module_one.available_instance_methods
+        instance_methods = indexed_module_one.instance_method_objects
 
         expect(instance_methods.length).to eq(5)
         expect(instance_methods[:sing].owner).to eq(indexed_module_four)
@@ -249,7 +249,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = indexed_module_one.available_class_methods(true)
+        class_methods = indexed_module_one.class_method_objects(true)
 
         expect(class_methods.length).to eq(7)
         expect(class_methods[:sing].owner).to eq(indexed_module_four)
@@ -279,7 +279,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible instance methods' do
-        instance_methods = indexed_module_two.available_instance_methods
+        instance_methods = indexed_module_two.instance_method_objects
 
         expect(instance_methods.length).to eq(4)
         expect(instance_methods[:sing].owner).to eq(indexed_module_four)
@@ -289,7 +289,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = indexed_module_two.available_class_methods(true)
+        class_methods = indexed_module_two.class_method_objects(true)
 
         expect(class_methods.length).to eq(2)
         expect(class_methods[:sing].owner).to eq(indexed_module_two.singleton_class)
@@ -319,7 +319,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible instance methods' do
-        instance_methods = indexed_module_three.available_instance_methods
+        instance_methods = indexed_module_three.instance_method_objects
 
         expect(instance_methods.length).to eq(7)
         expect(instance_methods[:sing].owner).to eq(indexed_module_four)
@@ -332,7 +332,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = indexed_module_three.available_class_methods(true)
+        class_methods = indexed_module_three.class_method_objects(true)
 
         expect(class_methods.length).to eq(5)
         expect(class_methods[:float].owner).to eq(indexed_module_one)
@@ -349,7 +349,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible instance methods' do
-        instance_methods = indexed_module_four.available_instance_methods
+        instance_methods = indexed_module_four.instance_method_objects
 
         expect(instance_methods.length).to eq(2)
         expect(instance_methods[:sing].owner).to eq(indexed_module_four)
@@ -357,7 +357,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = indexed_module_four.available_class_methods(true)
+        class_methods = indexed_module_four.class_method_objects(true)
 
         expect(class_methods.length).to eq(2)
         expect(class_methods[:sing].owner).to eq(indexed_module_four.singleton_class)
