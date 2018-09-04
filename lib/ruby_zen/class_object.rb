@@ -24,6 +24,10 @@ module RubyZen
       end
     end
 
+    def method_list
+      @method_objects
+    end
+
     def instance_method_object(method_id)
       @method_objects[method_id]
     end
