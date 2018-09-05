@@ -269,27 +269,34 @@ class RubyZen::Parser::C < RubyZen::Parser
                    \s*\)/xm) do |var_name, new_name, old_name|
       class_name = @known_classes[var_name]
 
-      unless class_name then
-        @options.warn "Enclosing class or module %p for alias %s %s is not known" % [
-          var_name, new_name, old_name]
-        next
-      end
+      # unless class_name then
+      #   @options.warn "Enclosing class or module %p for alias %s %s is not known" % [
+      #     var_name, new_name, old_name]
+      #   next
+      # end
 
       class_obj = find_class var_name, class_name
 
-      al = RubyZen::Alias.new '', old_name, new_name, ''
-      al.singleton = @singleton_classes.key? var_name
+      if class_obj.method_list[old_name]
+        original_meth_obj = class_obj.method_list[old_name]
+        alias_meth_obj = original_meth_obj.clone
+        alias_meth_obj.name = new_name
+        class_obj.add_method(alias_meth_obj)
+      end
 
-      comment = find_alias_comment var_name, new_name, old_name
+      # al = RubyZen::Alias.new '', old_name, new_name, ''
+      # al.singleton = @singleton_classes.key? var_name
 
-      comment.normalize
+      # comment = find_alias_comment var_name, new_name, old_name
 
-      al.comment = comment
+      # comment.normalize
 
-      al.record_location @top_level
+      # al.comment = comment
 
-      class_obj.add_alias al
-      @stats.add_alias al
+      # al.record_location @top_level
+
+      # class_obj.add_alias al
+      # @stats.add_alias al
     end
   end
 
@@ -1089,8 +1096,8 @@ class RubyZen::Parser::C < RubyZen::Parser
 
       # meth_obj = RubyZen::AnyMethod.new '', meth_name
       # meth_obj.c_function = function
-      # meth_obj.singleton =
-      #   singleton || %w[singleton_method module_function].include?(type)
+
+      return if class_obj.method_list[meth_name]
 
       meth_obj = RubyZen::MethodObject.new(meth_name, owner: class_obj)
       meth_obj.c_function = function
@@ -1313,7 +1320,7 @@ class RubyZen::Parser::C < RubyZen::Parser
     # do_constants
     do_methods
     # do_includes
-    # do_aliases
+    do_aliases
     # do_attrs
 
     deduplicate_call_seq

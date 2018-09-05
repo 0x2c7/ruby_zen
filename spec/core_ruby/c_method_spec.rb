@@ -11,6 +11,6 @@ RSpec.describe 'index c method' do
 
   it 'indexes one file through' do
     array_class = engine.fetch_class('Array')
-    expect(array_class.method_list.count).to eq(97)
+    expect(array_class.method_list.count).to eq(101)
   end
 end
