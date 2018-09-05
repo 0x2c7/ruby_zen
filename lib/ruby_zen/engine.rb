@@ -43,6 +43,10 @@ module RubyZen
       ).start
     end
 
+    def class_list
+      @classes
+    end
+
     def fetch_class(class_name)
       @classes[class_name.to_s]
     end

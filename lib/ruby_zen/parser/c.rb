@@ -177,7 +177,7 @@ class RubyZen::Parser::C < RubyZen::Parser
     # @classes           = load_variable_map :c_class_variables
     # @singleton_classes = load_variable_map :c_singleton_class_variables
     #
-    @classes = {}
+    @classes = @engine.class_list
     @singleton_classes = {}
 
     # class_variable => { function => [method, ...] }
@@ -727,13 +727,14 @@ class RubyZen::Parser::C < RubyZen::Parser
   # Finds a RubyZen::NormalClass or RDoc::NormalModule for +raw_name+
 
   def find_class(raw_name, name)
-    unless @classes[raw_name]
+    # unless @classes[raw_name]
       # if raw_name =~ /^rb_m/
       #   container = @top_level.add_module RubyZen::NormalModule, name
       # else
       #   container = @top_level.add_class RubyZen::NormalClass, name
       # end
 
+    unless @classes[name]
       if raw_name =~ /^rb_m/
         @engine.define_class(name) do
           RubyZen::ClassObject.new(name, is_module: true)
@@ -914,29 +915,42 @@ class RubyZen::Parser::C < RubyZen::Parser
   def handle_class_module(var_name, type, class_name, parent, in_module)
     parent_name = @known_classes[parent] || parent
 
-    if in_module then
-      enclosure = @classes[in_module] || @store.find_c_enclosure(in_module)
+    # if in_module then
+    #   enclosure = @classes[in_module] || @store.find_c_enclosure(in_module)
+    #
+    #   if enclosure.nil? and enclosure = @known_classes[in_module] then
+    #     enc_type = /^rb_m/ =~ in_module ? :module : :class
+    #     handle_class_module in_module, enc_type, enclosure, nil, nil
+    #     enclosure = @classes[in_module]
+    #   end
+    #
+    #   unless enclosure then
+    #     @enclosure_dependencies[in_module] << var_name
+    #     @missing_dependencies[var_name] =
+    #       [var_name, type, class_name, parent, in_module]
+    #
+    #     return
+    #   end
+    # else
+    #   enclosure = @top_level
+    # end
 
-      if enclosure.nil? and enclosure = @known_classes[in_module] then
-        enc_type = /^rb_m/ =~ in_module ? :module : :class
-        handle_class_module in_module, enc_type, enclosure, nil, nil
-        enclosure = @classes[in_module]
-      end
-
-      unless enclosure then
-        @enclosure_dependencies[in_module] << var_name
-        @missing_dependencies[var_name] =
-          [var_name, type, class_name, parent, in_module]
-
-        return
-      end
-    else
-      enclosure = @top_level
+    if in_module
+      enclosure_name = @known_classes[in_module]
+      enc_type = /^rb_m/ =~ in_module ? :module : :class
+      handle_class_module(in_module, enc_type, enclosure_name, nil, nil)
+      enclosure = @engine.fetch_class(in_module)
     end
 
     if type == :class then
-      full_name = if RubyZen::ClassModule === enclosure then
-                    enclosure.full_name + "::#{class_name}"
+      # full_name = if RubyZen::ClassModule === enclosure then
+      #               enclosure.full_name + "::#{class_name}"
+      #             else
+      #               class_name
+      #             end
+
+      full_name = if RubyZen::ClassObject === enclosure
+                    enclosure.name + "::#{class_name}"
                   else
                     class_name
                   end
@@ -945,25 +959,44 @@ class RubyZen::Parser::C < RubyZen::Parser
         parent_name = $1
       end
 
-      cm = enclosure.add_class RubyZen::NormalClass, class_name, parent_name
+      parent_class = @engine.define_class(parent_name) do
+        RubyZen::ClassObject.new(parent_name)
+      end
+
+      cm = @engine.define_class(class_name) do
+        RubyZen::ClassObject.new(
+          class_name,
+          superclass: parent_class
+        )
+      end
+
+      # cm = enclosure.add_class RubyZen::NormalClass, class_name, parent_name
     else
-      cm = enclosure.add_module RubyZen::NormalModule, class_name
+      # cm = enclosure.add_module RubyZen::NormalModule, class_name
+      cm = @engine.define_class(class_name) do
+        RubyZen::ClassObject.new(
+          class_name,
+          is_module: true
+        )
+      end
     end
 
-    cm.record_location enclosure.top_level
+    # cm.record_location enclosure.top_level
 
-    find_class_comment cm.full_name, cm
+    # find_class_comment cm.full_name, cm
 
-    case cm
-    when RubyZen::NormalClass
-      @stats.add_class cm
-    when RubyZen::NormalModule
-      @stats.add_module cm
-    end
+    # case cm
+    # when RubyZen::NormalClass
+    #   @stats.add_class cm
+    # when RubyZen::NormalModule
+    #   @stats.add_module cm
+    # end
 
-    @classes[var_name] = cm
-    @known_classes[var_name] = cm.full_name
-    @store.add_c_enclosure var_name, cm
+    @known_classes[var_name] = cm.fullname
+
+    # @classes[var_name] = cm
+    # @known_classes[var_name] = cm.full_name
+    # @store.add_c_enclosure var_name, cm
   end
 
   ##
@@ -1059,7 +1092,7 @@ class RubyZen::Parser::C < RubyZen::Parser
       # meth_obj.singleton =
       #   singleton || %w[singleton_method module_function].include?(type)
 
-      meth_obj = RubyZen::MethodObject.new(meth_name)
+      meth_obj = RubyZen::MethodObject.new(meth_name, owner: class_obj)
       meth_obj.c_function = function
       meth_obj.singleton =
         singleton || %w[singleton_method module_function].include?(type)
@@ -1274,7 +1307,7 @@ class RubyZen::Parser::C < RubyZen::Parser
     remove_commented_out_lines
 
     # do_modules
-    # do_classes
+    do_classes
     # do_missing
 
     # do_constants
