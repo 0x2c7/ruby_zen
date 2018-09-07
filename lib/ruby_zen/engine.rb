@@ -35,8 +35,8 @@ module RubyZen
       ).start
     end
 
-    def index_core_ruby(filename)
-      RubyZen::Indexers::CoreRubyIndexer.new(
+    def index_internal_ruby(filename)
+      RubyZen::Indexers::RubyCoreIndexer.new(
         filename,
         engine: self,
         logger: @logger
