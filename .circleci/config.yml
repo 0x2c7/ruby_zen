@@ -2,7 +2,7 @@ version: 2
 jobs:
   unit:
     docker:
-      - image: circleci/ruby:2.4.1-node
+      - image: nguyenquangminh0711/ruby-bison:latest
         environment:
           LOG_LEVEL: DEBUG
           LOG_ENABLED: true
