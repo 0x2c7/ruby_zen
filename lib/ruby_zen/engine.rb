@@ -35,6 +35,18 @@ module RubyZen
       ).start
     end
 
+    def index_internal_ruby(filename)
+      RubyZen::Indexers::RubyCoreIndexer.new(
+        filename,
+        engine: self,
+        logger: @logger
+      ).start
+    end
+
+    def class_list
+      @classes
+    end
+
     def fetch_class(class_name)
       @classes[class_name.to_s]
     end
