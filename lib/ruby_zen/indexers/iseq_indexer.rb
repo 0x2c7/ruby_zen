@@ -7,15 +7,15 @@ module RubyZen::Indexers
       @iseq = iseq
       @logger = logger
       @vm = RubyZen::VM.new(logger: logger)
-      register_processors
+      add_callbacks
     end
 
     def start
       @vm.run(iseq)
     end
 
-    def register_processors
-      @vm.register_processor('defineclass') do |name, _body, superclass, cbase, flags|
+    def add_callbacks
+      @vm.on('defineclass') do |name, _body, superclass, cbase, flags|
         name = "#{cbase.fullname}::#{name}" unless cbase.nil?
         if (flags & 0x1) > 0
           # Singleton class
@@ -35,7 +35,7 @@ module RubyZen::Indexers
         end
       end
 
-      @vm.register_processor('getconstant') do |name, namespace|
+      @vm.on('getconstant') do |name, namespace|
         name = "#{namespace.fullname}::#{name}" unless namespace.nil?
         const = @engine.fetch_class(name)
         if const.nil?
@@ -47,39 +47,39 @@ module RubyZen::Indexers
         end
       end
 
-      @vm.register_processor('opt_send_without_block', 'define_method') do |receiver, method_name, method_body|
+      @vm.on('opt_send_without_block', 'define_method') do |receiver, method_name, method_body|
         define_instance_method(receiver, method_name, method_body)
       end
 
-      @vm.register_processor('opt_send_without_block', 'define_singleton_method') do |receiver, method_name, method_body|
+      @vm.on('opt_send_without_block', 'define_singleton_method') do |receiver, method_name, method_body|
         define_class_method(receiver, method_name, method_body)
       end
 
-      @vm.register_processor('opt_send_without_block', 'instance_method') do |receiver, method_name|
+      @vm.on('opt_send_without_block', 'instance_method') do |receiver, method_name|
         receiver.instance_method_object(method_name)
       end
 
-      @vm.register_processor('opt_send_without_block', 'method') do |receiver, method_name|
+      @vm.on('opt_send_without_block', 'method') do |receiver, method_name|
         receiver.class_method_object(method_name)
       end
 
-      @vm.register_processor('opt_send_without_block', 'include') do |receiver, module_definition|
+      @vm.on('opt_send_without_block', 'include') do |receiver, module_definition|
         receiver.include_module(module_definition)
       end
 
-      @vm.register_processor('opt_send_without_block', 'extend') do |receiver, module_definition|
+      @vm.on('opt_send_without_block', 'extend') do |receiver, module_definition|
         receiver.extend_module(module_definition)
       end
 
-      @vm.register_processor('opt_send_without_block', 'prepend') do |receiver, module_definition|
+      @vm.on('opt_send_without_block', 'prepend') do |receiver, module_definition|
         receiver.prepend_module(module_definition)
       end
 
-      @vm.register_processor('send', 'define_method') do |receiver, method_name, method_body|
+      @vm.on('send', 'define_method') do |receiver, method_name, method_body|
         define_instance_method(receiver, method_name, method_body)
       end
 
-      @vm.register_processor('send', 'define_singleton_method') do |receiver, method_name, method_body|
+      @vm.on('send', 'define_singleton_method') do |receiver, method_name, method_body|
         define_class_method(receiver, method_name, method_body)
       end
     end
