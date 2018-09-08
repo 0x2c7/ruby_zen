@@ -1,7 +1,7 @@
 module RubyZen
   class VM
     def initialize(scope: nil, logger:)
-      @processors = {}
+      @callbacks = {}
 
       @logger = logger
 
@@ -23,26 +23,26 @@ module RubyZen
       end
     end
 
-    def register_processor(instruction_name, *filters, &processor)
-      @processors[instruction_name] ||= []
-      @processors[instruction_name] << {
-        proc: processor,
+    def on(instruction_name, *filters, &callback)
+      @callbacks[instruction_name] ||= []
+      @callbacks[instruction_name] << {
+        proc: callback,
         filters: filters
       }
     end
 
-    def dispatch_processor(instruction_name, filter: nil, args: [])
-      processor =
-        if !@processors[instruction_name]
+    def dispatch_callback(instruction_name, filter: nil, args: [])
+      callback =
+        if !@callbacks[instruction_name]
           nil
         elsif filter.nil?
-          @processors[instruction_name].first
+          @callbacks[instruction_name].first
         else
-          @processors[instruction_name].find do |p|
+          @callbacks[instruction_name].find do |p|
             p[:filters].include?(filter)
           end
         end
-      processor[:proc].call(*args) if processor
+      callback[:proc].call(*args) if callback
     end
 
     private
@@ -83,7 +83,7 @@ module RubyZen
     def handle_getconstant(instruction)
       name = instruction.operands[0]
       klass = @stack.pop
-      constant_value = dispatch_processor(
+      constant_value = dispatch_callback(
         instruction.name, args: [name, klass]
       )
       @stack.push(constant_value)
@@ -94,7 +94,7 @@ module RubyZen
       superclass = @stack.pop
       cbase = @stack.pop
 
-      class_value = dispatch_processor(
+      class_value = dispatch_callback(
         instruction.name,
         args: [class_name, class_body, superclass, cbase, flags]
       )
@@ -112,7 +112,7 @@ module RubyZen
         method_body = @stack.pop
         method_name = @stack.pop
 
-        method_object = dispatch_processor(
+        method_object = dispatch_callback(
           instruction.name,
           filter: 'define_method',
           args: [@scope.last, method_name, method_body]
@@ -131,7 +131,7 @@ module RubyZen
         method_name = @stack.pop
         receiver = @stack.pop
 
-        method_object = dispatch_processor(
+        method_object = dispatch_callback(
           instruction.name,
           filter: 'define_singleton_method',
           args: [receiver, method_name, method_body]
@@ -149,7 +149,7 @@ module RubyZen
         method_name = @stack.pop
         receiver = @stack.pop
 
-        method_object = dispatch_processor(
+        method_object = dispatch_callback(
           instruction.name,
           filter: 'instance_method',
           args: [receiver, method_name]
@@ -159,7 +159,7 @@ module RubyZen
         method_name = @stack.pop
         receiver = @stack.pop
 
-        method_object = dispatch_processor(
+        method_object = dispatch_callback(
           instruction.name,
           filter: 'method',
           args: [receiver, method_name]
@@ -169,7 +169,7 @@ module RubyZen
         module_definition = @stack.pop
         receiver = @stack.pop
 
-        dispatch_processor(
+        dispatch_callback(
           instruction.name,
           filter: 'include',
           args: [receiver, module_definition]
@@ -178,7 +178,7 @@ module RubyZen
         module_definition = @stack.pop
         receiver = @stack.pop
 
-        dispatch_processor(
+        dispatch_callback(
           instruction.name,
           filter: 'extend',
           args: [receiver, module_definition]
@@ -187,7 +187,7 @@ module RubyZen
         module_definition = @stack.pop
         receiver = @stack.pop
 
-        dispatch_processor(
+        dispatch_callback(
           instruction.name,
           filter: 'prepend',
           args: [receiver, module_definition]
@@ -204,7 +204,7 @@ module RubyZen
         method_name = @stack.pop
         receiver = @stack.pop
 
-        method_object = dispatch_processor(
+        method_object = dispatch_callback(
           instruction.name,
           filter: 'define_method',
           args: [receiver, method_name, block_iseq]
@@ -220,7 +220,7 @@ module RubyZen
         method_name = @stack.pop
         receiver = @stack.pop
 
-        method_object = dispatch_processor(
+        method_object = dispatch_callback(
           instruction.name,
           filter: 'define_singleton_method',
           args: [receiver, method_name, block_iseq]
