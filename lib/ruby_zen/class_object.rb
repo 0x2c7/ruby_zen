@@ -25,7 +25,7 @@ module RubyZen
     end
 
     def instance_method_object(method_id)
-      @method_objects[method_id]
+      instance_method_objects[method_id]
     end
 
     def instance_method_objects
@@ -45,8 +45,7 @@ module RubyZen
     end
 
     def class_method_object(method_id)
-      return nil if singleton_class.nil?
-      singleton_class.instance_method_object(method_id)
+      class_method_objects[method_id]
     end
 
     def class_method_objects(as_module = false)
