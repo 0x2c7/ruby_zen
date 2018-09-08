@@ -56,6 +56,12 @@ module RubyZen
       end
     end
 
+    def add_class_return_object(class_name, method_id, object)
+      class_object = define_class(class_name)
+      return if class_object.nil?
+      class_object.add_method_return_object(method_id, object)
+    end
+
     private
 
     def index_internal_classes

@@ -1,12 +1,17 @@
 module RubyZen
   class MethodObject
-    attr_reader :name, :owner, :parameters, :super_method
+    attr_reader :name, :owner, :parameters, :super_method, :return_object
 
     def initialize(name, owner: nil, parameters: [], super_method: nil)
       @name = name
       @owner = owner
       @parameters = parameters
       @super_method = super_method
+      @return_object = RubyZen::ReturnObject.new(self)
+    end
+
+    def add_return_object(object)
+      @return_object.add(object)
     end
 
     def inpsect

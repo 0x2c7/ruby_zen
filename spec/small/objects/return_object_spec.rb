@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe RubyZen::ReturnObject do
-  let(:parent) { RubyZen::ClassObject.new('TestingClass') }
+  let(:parent) { RubyZen::MethodObject.new('method_a') }
   subject { described_class.new(parent) }
 
   describe '#to_set' do
@@ -12,40 +12,40 @@ RSpec.describe RubyZen::ReturnObject do
     end
 
     context 'one-level possibilities' do
-      let(:method_a) { RubyZen::MethodObject.new(:a) }
-      let(:method_b) { RubyZen::MethodObject.new(:b) }
+      let(:class_a) { RubyZen::ClassObject.new(:a) }
+      let(:class_b) { RubyZen::ClassObject.new(:b) }
 
       before do
-        subject.add(method_a)
-        subject.add(method_b)
-        subject.add(method_a)
+        subject.add(class_a)
+        subject.add(class_b)
+        subject.add(class_a)
       end
 
       it 'returns possibilities of that object' do
         expect(subject.to_set.to_a).to match_array(
-          [method_a, method_b]
+          [class_a, class_b]
         )
       end
     end
 
     context 'nested possibilities' do
-      let(:method_a) { RubyZen::MethodObject.new(:a) }
-      let(:method_b) { RubyZen::MethodObject.new(:b) }
-      let(:method_c) { RubyZen::MethodObject.new(:c) }
-      let(:method_d) { RubyZen::MethodObject.new(:d) }
+      let(:class_a) { RubyZen::ClassObject.new(:a) }
+      let(:class_b) { RubyZen::ClassObject.new(:b) }
+      let(:class_c) { RubyZen::ClassObject.new(:c) }
+      let(:class_d) { RubyZen::ClassObject.new(:d) }
 
       before do
-        subject.add(method_a)
-        subject.add(method_b)
-        subject.add(method_a)
+        subject.add(class_a)
+        subject.add(class_b)
+        subject.add(class_a)
 
         subject_2 = described_class.new(double)
-        subject_2.add(method_a)
-        subject_2.add(method_c)
+        subject_2.add(class_a)
+        subject_2.add(class_c)
 
         subject_3 = described_class.new(double)
-        subject_3.add(method_b)
-        subject_3.add(method_d)
+        subject_3.add(class_b)
+        subject_3.add(class_d)
 
         subject_2.add(subject_3)
 
@@ -55,7 +55,7 @@ RSpec.describe RubyZen::ReturnObject do
 
       it 'returns merged possibilities from all nested' do
         expect(subject.to_set.to_a).to match_array(
-          [method_a, method_b, method_c, method_d]
+          [class_a, class_b, class_c, class_d]
         )
       end
     end

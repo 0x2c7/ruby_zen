@@ -9,8 +9,8 @@ module RubyZen
       @possibilities = Set.new
     end
 
-    def add(value)
-      @possibilities.add(value)
+    def add(object)
+      @possibilities.add(object)
     end
 
     def to_set
