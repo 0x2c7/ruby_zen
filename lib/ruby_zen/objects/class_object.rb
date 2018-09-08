@@ -74,6 +74,10 @@ module RubyZen
       singleton_class.add_method(method_object) unless singleton_class.nil?
     end
 
+    def add_method_return_object(method_id, object)
+      @method_objects[method_id].add_return_object(object)
+    end
+
     def include_module(module_definition)
       @included_modules[module_definition.name] = module_definition
     end

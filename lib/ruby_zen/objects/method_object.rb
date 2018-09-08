@@ -1,6 +1,5 @@
 module RubyZen
   class MethodObject
-    # attr_reader :name, :owner, :parameters, :super_method
     attr_accessor :name, :owner, :parameters, :super_method,
                   :call_seq, :c_function, :singleton, :visibility, :block_params
 
@@ -9,6 +8,11 @@ module RubyZen
       @owner = owner
       @parameters = parameters
       @super_method = super_method
+      @return_object = RubyZen::ReturnObject.new(self)
+    end
+
+    def add_return_object(object)
+      @return_object.add(object)
     end
 
     ##
