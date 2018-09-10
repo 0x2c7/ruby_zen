@@ -2,7 +2,7 @@ module RubyZen
   class ClassObject
     attr_reader :name, :fullname, :is_singleton, :singleton_class,
                 :included_modules, :extended_modules, :prepended_modules
-    attr_accessor :is_module, :superclass, :namespace
+    attr_accessor :is_module, :superclass, :namespace, :visibility
 
     def initialize(fullname, is_module: false, is_singleton: false, superclass: nil, namespace: nil)
       @fullname = fullname.to_s
