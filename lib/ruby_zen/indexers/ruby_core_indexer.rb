@@ -3,8 +3,9 @@ module RubyZen::Indexers
     require 'rdoc/rdoc'
 
     VISIBILITY = %i[private protected].freeze
-    INSTANTIATION_METHODS = %w[new initialize [] {}].freeze
+    INSTANTIATION_METHODS = %w[new [] {}].freeze
     SIZE_METHODS = %w[size length].freeze
+    COMPARISON_METHODS = %w[== === > < <= >=].freeze
 
     def initialize(filename, engine:, logger:)
       @filename = filename
@@ -35,6 +36,10 @@ module RubyZen::Indexers
       @store.path     = options.op_dir
 
       @store
+    end
+
+    def numeric?(str)
+      Float(str) != nil rescue false
     end
 
     def index_internal(ruby)
@@ -125,7 +130,7 @@ module RubyZen::Indexers
         return_objects << method.owner
       elsif SIZE_METHODS.include?(method.name)
         return_objects << @engine.fetch_class('Integer')
-      elsif method.name.end_with?('?')
+      elsif method.name.end_with?('?') || COMPARISON_METHODS.include?(method.name)
         return_objects << @engine.fetch_class('TrueClass')
         return_objects << @engine.fetch_class('FalseClass')
       elsif method.name == 'json_create'
@@ -134,27 +139,27 @@ module RubyZen::Indexers
         return_objects << @engine.fetch_class('Hash')
       elsif method.call_seq
         if method.call_seq =~ /->/
-          method.call_seq.split("\n").each do |arg|
-            if arg[/(?<=->\s).*/]
-              return_value << arg[/(?<=->\s).*/].split(' ')
+          method.call_seq.split("\n").each do |line|
+            if line[/(?<=->\s).*/]
+              return_value << parse_call_seq(line[/(?<=->\s).*/])
             else
               return_objects << @engine.fetch_class('Object')
             end
           end
           return_objects += parse_return_value(method, return_value.flatten.uniq)
         elsif method.call_seq =~ /=>/
-          method.call_seq.split("\n").each do |arg|
-            if arg[/(?<==>\s).*/]
-              return_value << arg[/(?<==>\s).*/].split(' ')
+          method.call_seq.split("\n").each do |line|
+            if line[/(?<==>\s).*/]
+              return_value << parse_call_seq(line[/(?<==>\s).*/])
             else
               return_objects << @engine.fetch_class('Object')
             end
           end
           return_objects += parse_return_value(method, return_value.flatten.uniq)
         elsif method.call_seq =~ /(?<==\s)[^\)]*$/
-          method.call_seq.split("\n").each do |arg|
-            if arg[/(?<==\s)[^\)]*$/]
-              return_value << arg[/(?<==\s)[^\)]*$/].split(' ')
+          method.call_seq.split("\n").each do |line|
+            if line[/(?<==\s)[^\)]*$/]
+              return_value << parse_call_seq(line[/(?<==\s)[^\)]*$/])
             else
               return_objects << @engine.fetch_class('Object')
             end
@@ -164,15 +169,15 @@ module RubyZen::Indexers
           return_objects = parse_transform_method(method.name[/(?<=_).*/])
         elsif method.name =~ /exit|abort/
           return_objects << @engine.fetch_class('Object')
-        else
-          return_objects << @engine.fetch_class('Object')
+        # else
+        #   return_objects << @engine.fetch_class('Object')
         end
       elsif method.name =~ /to_/
         return_objects = parse_transform_method(method.name[/(?<=_).*/])
       elsif method.name =~ /exit|abort/
         return_objects << @engine.fetch_class('Object')
-      else
-        return_objects << @engine.fetch_class('Object')
+      # else
+      #   return_objects << @engine.fetch_class('Object')
       end
 
       return_objects.each do |return_object|
@@ -210,29 +215,36 @@ module RubyZen::Indexers
       return_object
     end
 
+    def parse_call_seq(line)
+      line.sub!(/".*"/, 'str')
+      line.sub!(/'.*'/, 'str')
+      line.sub!(/\[.*\]|^\[.*,/, 'ary')
+      line.sub!(/{.*}|^{.*,/, 'hash')
+
+      line.split(' ')
+    end
+
     def parse_return_value(method, value_list)
       list = []
       self_instance = method.owner
 
       value_list.each do |value|
-        next if value == 'or'
+        next if value == 'or' || value == '|'
+
+        value.chomp!(',')
         value.downcase!
 
-        if value[0] == '"' || value[-1] == '"'
-          list << @engine.fetch_class('String')
-        elsif value[0] == '[' || value[-1] == ']'
+        if value[/ary|array/]
           list << @engine.fetch_class('Array')
-        elsif value[0] == '{' || value[-1] == '}'
-          list << @engine.fetch_class('Hash')
-        elsif value[/ary|array/]
-          list << @engine.fetch_class('Array')
+        elsif value[/stringscanner/]
+          list << @engine.fetch_class('StringScanner')
         elsif value[/strio/]
           list << @engine.fetch_class('StringIO')
         elsif value[/string|str|char/]
           list << @engine.fetch_class('String')
         elsif value[/nil/]
           list << @engine.fetch_class('NilClass')
-        elsif value[/int|fixnum|0|1|-1/]
+        elsif value[/int|fixnum/]
           list << @engine.fetch_class('Integer')
         elsif value[/enumerator/]
           list << @engine.fetch_class('Enumerator')
@@ -245,7 +257,7 @@ module RubyZen::Indexers
           list << @engine.fetch_class('Proc')
         elsif value[/enc/]
           list << @engine.fetch_class('Encoding')
-        elsif value[/num|real/]
+        elsif value[/num|real/] || numeric?(value)
           list << @engine.fetch_class('Numeric')
         elsif value[/float/]
           list << @engine.fetch_class('Float')
@@ -271,10 +283,16 @@ module RubyZen::Indexers
           list << @engine.fetch_class('ThreadGroup')
         elsif value[/rational|(0\/1)/]
           list << @engine.fetch_class('Rational')
-        elsif value[/complex|0+0i/]
+        elsif value[/complex|.*+.*i/]
           list << @engine.fetch_class('Complex')
+        elsif value[/ostruct|openstruct/]
+          list << @engine.fetch_class('OpenStruct')
         elsif value[/struct/]
           list << @engine.fetch_class('Struct')
+        elsif value[/set/]
+          list << @engine.fetch_class('Set')
+        elsif value[/pathname/]
+          list << @engine.fetch_class('Pathname')
         elsif value[/dir/]
           list << @engine.fetch_class('Dir')
         elsif value[/matchdata/]
@@ -291,8 +309,6 @@ module RubyZen::Indexers
           list << @engine.fetch_class('Method')
         elsif value[/rng/]
           list << @engine.fetch_class('Range')
-        elsif value[/ostruct/]
-          list << @engine.fetch_class('OpenStruct')
         elsif value[/gdbm/]
           list << @engine.fetch_class('GDBM')
         elsif value[/system_exit/]
@@ -309,6 +325,10 @@ module RubyZen::Indexers
           list << @engine.fetch_class('SystemCallError')
         elsif value[/argf/]
           list << @engine.fetch_class('ARGF')
+        elsif value[/uri/]
+          list << @engine.fetch_class('URI')
+        elsif value[/psychj/]
+          list << @engine.fetch_class('Psych')
         elsif value[/self/]
           list << self_instance
         else

@@ -105,9 +105,8 @@ RSpec.describe 'index internal ruby' do
         return_object = method.return_object.to_set
 
         expect(method.owner).to be(array)
-        expect(return_object.length).to eq(6)
+        expect(return_object.length).to eq(5)
         expect(return_object.include?(hash)).to be true
-        expect(return_object.include?(object)).to be true
         expect(return_object.include?(array)).to be true
         expect(return_object.include?(string)).to be true
         expect(return_object.include?(true_class)).to be true
@@ -123,7 +122,7 @@ RSpec.describe 'index internal ruby' do
         expect(method.owner).to be(array)
         expect(return_object.length).to eq(3)
         expect(return_object.include?(hash)).to be true
-        expect(return_object.include?(integer)).to be true
+        expect(return_object.include?(numeric)).to be true
         expect(return_object.include?(object)).to be true
       end
     end
