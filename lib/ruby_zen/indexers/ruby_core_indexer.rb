@@ -169,15 +169,15 @@ module RubyZen::Indexers
           return_objects = parse_transform_method(method.name[/(?<=_).*/])
         elsif method.name =~ /exit|abort/
           return_objects << @engine.fetch_class('Object')
-        # else
-        #   return_objects << @engine.fetch_class('Object')
+        else
+          return_objects << @engine.fetch_class('Object')
         end
       elsif method.name =~ /to_/
         return_objects = parse_transform_method(method.name[/(?<=_).*/])
       elsif method.name =~ /exit|abort/
         return_objects << @engine.fetch_class('Object')
-      # else
-      #   return_objects << @engine.fetch_class('Object')
+      else
+        return_objects << @engine.fetch_class('Object')
       end
 
       return_objects.each do |return_object|
