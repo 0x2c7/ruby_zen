@@ -6,10 +6,9 @@ RSpec.describe 'index mixin-ed class' do
   let(:module_2) { 'SecondModule' }
 
   let(:engine) { RubyZen::Engine.new(logger: TestingLogger.new(STDOUT)) }
-  let(:iseq) { YarvGenerator.build_from_source(code) }
 
   before do
-    engine.index_iseq(iseq)
+    engine.index_iseq(code)
   end
 
   context 'include' do

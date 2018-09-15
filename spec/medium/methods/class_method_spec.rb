@@ -40,10 +40,9 @@ RSpec.describe 'index class methods' do
   end
 
   let(:engine) { RubyZen::Engine.new(logger: TestingLogger.new(STDOUT)) }
-  let(:iseq) { YarvGenerator.build_from_source(code) }
 
   before do
-    engine.index_iseq(iseq)
+    engine.index_iseq(code)
   end
 
   it 'supports "self.method" syntax' do
