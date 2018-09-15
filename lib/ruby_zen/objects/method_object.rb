@@ -15,6 +15,17 @@ module RubyZen
       @return_object.add(object)
     end
 
+    def merge!(other)
+      @parameters = other.parameters unless other.parameters.empty?
+      unless other.return_object.empty?
+        if @return_object.empty?
+          @return_object = other.return_object
+        else
+          @return_object.add(other.return_object)
+        end
+      end
+    end
+
     def inpsect
       "#<MethodObject: #{name}, parameters: #{parameters.inspect}, owner: #{owner.nil? ? '<empty>' : owner.fullname}, super_method: #{super_method.nil? ? '<empty>' : super_method.inspect}>"
     end

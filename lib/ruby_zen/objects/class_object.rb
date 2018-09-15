@@ -67,7 +67,11 @@ module RubyZen
     end
 
     def add_method(method_object)
-      @method_objects[method_object.name] = method_object
+      if @method_objects[method_object.name]
+        @method_objects[method_object.name].merge!(method_object)
+      else
+        @method_objects[method_object.name] = method_object
+      end
     end
 
     def add_class_method(method_object)
