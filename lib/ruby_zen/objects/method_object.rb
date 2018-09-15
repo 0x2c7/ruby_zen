@@ -4,7 +4,7 @@ module RubyZen
                   :call_seq, :c_function, :singleton, :param_list, :return_value
 
     def initialize(name, owner: nil, parameters: [], super_method: nil)
-      @name = name
+      @name = name.to_sym
       @owner = owner
       @parameters = parameters
       @super_method = super_method

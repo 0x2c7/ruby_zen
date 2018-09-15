@@ -40,7 +40,7 @@ RSpec.describe 'index internal ruby' do
 
     context 'constructor' do
       it 'sets return object to owner of method' do
-        method = array.class_method_object('new')
+        method = array.class_method_object(:new)
         return_object = method.return_object.to_set
 
         expect(method.owner).to be(array)
@@ -51,7 +51,7 @@ RSpec.describe 'index internal ruby' do
 
     context 'size' do
       it 'sets return object to Integer class' do
-        method = array.instance_method_object('length')
+        method = array.instance_method_object(:length)
         return_object = method.return_object.to_set
 
         expect(method.owner).to be(array)
@@ -62,7 +62,7 @@ RSpec.describe 'index internal ruby' do
 
     context 'method ends with ?' do
       it 'sets possbile return objects to TrueClass and FalseClass' do
-        method = array.instance_method_object('is_nil?')
+        method = array.instance_method_object(:is_nil?)
         return_object = method.return_object.to_set
 
         expect(method.owner).to be(array)
@@ -74,8 +74,8 @@ RSpec.describe 'index internal ruby' do
 
     context 'aliased method' do
       it 'clones originial method and changes name' do
-        original_method = array.instance_method_object('inspect')
-        method = array.instance_method_object('to_s')
+        original_method = array.instance_method_object(:inspect)
+        method = array.instance_method_object(:to_s)
         return_object = method.return_object.to_set
 
         expect(method.owner).to be(original_method.owner)
@@ -88,7 +88,7 @@ RSpec.describe 'index internal ruby' do
 
     context 'call-seq is given in format ->' do
       it 'parses return objects correctly' do
-        method = array.class_method_object('dup')
+        method = array.class_method_object(:dup)
         return_object = method.return_object.to_set
 
         expect(method.owner).to be(array)
@@ -101,7 +101,7 @@ RSpec.describe 'index internal ruby' do
 
     context 'call-seq is given in format =>' do
       it 'parses return objects correctly' do
-        method = array.class_method_object('try_convert')
+        method = array.class_method_object(:try_convert)
         return_object = method.return_object.to_set
 
         expect(method.owner).to be(array)
@@ -116,7 +116,7 @@ RSpec.describe 'index internal ruby' do
 
     context 'call-seq is given in format =' do
       it 'parses return objects correctly' do
-        method = array.instance_method_object('freeze')
+        method = array.instance_method_object(:freeze)
         return_object = method.return_object.to_set
 
         expect(method.owner).to be(array)
@@ -130,7 +130,7 @@ RSpec.describe 'index internal ruby' do
     context 'call-seq is given but contains no actual information' do
       context 'method is of format to_' do
         it 'parses return objects correctly' do
-          method = array.instance_method_object('to_a')
+          method = array.instance_method_object(:to_a)
           return_object = method.return_object.to_set
 
           expect(method.owner).to be(array)
@@ -141,7 +141,7 @@ RSpec.describe 'index internal ruby' do
 
       context 'normal method' do
         it 'sets return object to Object class' do
-          method = array.class_method_object('abort')
+          method = array.class_method_object(:abort)
           return_object = method.return_object.to_set
 
           expect(method.owner).to be(array)
@@ -154,7 +154,7 @@ RSpec.describe 'index internal ruby' do
     context 'call-seq is not given' do
       context 'method is of format to_' do
         it 'parses return objects correctly' do
-          method = array.instance_method_object('to_f')
+          method = array.instance_method_object(:to_f)
           return_object = method.return_object.to_set
 
           expect(method.owner).to be(array)
@@ -165,7 +165,7 @@ RSpec.describe 'index internal ruby' do
 
       context 'normal method' do
         it 'sets return object to Object class' do
-          method = array.instance_method_object('exit')
+          method = array.instance_method_object(:exit)
           return_object = method.return_object.to_set
 
           expect(method.owner).to be(array)
