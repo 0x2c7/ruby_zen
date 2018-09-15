@@ -1,6 +1,7 @@
 module RubyZen
   class MethodObject
-    attr_reader :name, :owner, :parameters, :super_method, :return_object
+    attr_accessor :name, :owner, :parameters, :super_method, :return_object,
+                  :call_seq, :c_function, :singleton, :param_list, :return_value
 
     def initialize(name, owner: nil, parameters: [], super_method: nil)
       @name = name
