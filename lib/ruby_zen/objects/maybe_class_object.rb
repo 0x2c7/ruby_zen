@@ -1,7 +1,7 @@
 require 'set'
 
 module RubyZen
-  class ReturnObject
+  class MaybeClassObject
     attr_reader :parent
 
     def initialize(parent)

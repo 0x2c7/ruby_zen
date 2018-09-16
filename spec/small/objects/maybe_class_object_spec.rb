@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe RubyZen::ReturnObject do
+RSpec.describe RubyZen::MaybeClassObject do
   let(:parent) { RubyZen::MethodObject.new('method_a') }
   subject { described_class.new(parent) }
 
