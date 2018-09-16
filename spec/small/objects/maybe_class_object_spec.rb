@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe RubyZen::MaybeClassObject do
-  let(:parent) { RubyZen::MethodObject.new('method_a') }
-  subject { described_class.new(parent) }
+  subject { described_class.new }
 
   describe '#to_set' do
     context 'zero possibilities' do
@@ -39,18 +38,18 @@ RSpec.describe RubyZen::MaybeClassObject do
         subject.add(class_b)
         subject.add(class_a)
 
-        subject_2 = described_class.new(double)
+        subject_2 = described_class.new
         subject_2.add(class_a)
         subject_2.add(class_c)
 
-        subject_3 = described_class.new(double)
+        subject_3 = described_class.new
         subject_3.add(class_b)
         subject_3.add(class_d)
 
         subject_2.add(subject_3)
 
         subject.add(subject_2)
-        subject.add(described_class.new(double))
+        subject.add(described_class.new)
       end
 
       it 'returns merged possibilities from all nested' do

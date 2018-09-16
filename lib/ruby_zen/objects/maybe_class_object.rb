@@ -4,9 +4,8 @@ module RubyZen
   class MaybeClassObject
     attr_reader :parent
 
-    def initialize(parent)
-      @parent        = parent
-      @possibilities = Set.new
+    def initialize(possibilities = [])
+      @possibilities = Set.new(possibilities)
     end
 
     def add(object)

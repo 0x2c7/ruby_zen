@@ -8,7 +8,7 @@ module RubyZen
       @owner = owner
       @parameters = parameters
       @super_method = super_method
-      @return_object = RubyZen::MaybeClassObject.new(self)
+      @return_object = RubyZen::MaybeClassObject.new
     end
 
     def add_return_object(object)
