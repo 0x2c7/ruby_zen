@@ -5,11 +5,20 @@ module RubyZen
     attr_reader :parent
 
     def initialize(possibilities = [])
-      @possibilities = Set.new(possibilities)
+      if possibilities.is_a?(Array)
+        @possibilities = Set.new(possibilities)
+      else
+        @possibilities = Set.new
+        @possibilities.add(possibilities)
+      end
     end
 
     def add(object)
       @possibilities.add(object)
+    end
+
+    def replace(object)
+      initialize(object)
     end
 
     def empty?

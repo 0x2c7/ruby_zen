@@ -37,6 +37,8 @@ module RubyZen
           interpreter.call(self, instruction)
         end
       end
+
+      @environment.leave_frame
     end
 
     def define_instance_method(receiver, method_name, method_body)

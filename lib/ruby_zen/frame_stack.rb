@@ -1,8 +1,11 @@
 module RubyZen
   class Frame
-    attr_reader :ep, :scope
+    attr_reader :stack, :ep, :scope, :previous_frame
 
-    def initialize(locals:, svar:, special:, scope:)
+    def initialize(
+      locals:, svar:, special:, scope:,
+      previous_frame: nil
+    )
       @stack = []
       locals.each do |local|
         @stack.push(local)
@@ -12,6 +15,7 @@ module RubyZen
       @ep = @stack.length - 1
       @scope = scope
       @stack.push(scope)
+      @previous_frame = previous_frame
     end
 
     def push(val)
@@ -20,6 +24,14 @@ module RubyZen
 
     def pop
       @stack.pop
+    end
+
+    def pop_n(n)
+      @stack.slice!(@stack.length - n, n)
+    end
+
+    def [](index)
+      @stack[index]
     end
   end
 
@@ -36,18 +48,28 @@ module RubyZen
       @frames.last.pop
     end
 
+    def pop_n(n)
+      @frames.last.pop_n(n)
+    end
+
     def scope
       @frames.last.scope
+    end
+
+    def local(level, index)
+      frame = @frames.last
+      (0..level - 1).each do
+        frame = frame.previous_frame
+      end
+      frame[frame.ep - index]
     end
 
     def root_scope
       @frames.first.scope
     end
 
-    def at(index, level_delta = 0)
-      level = @frames.length - level_delta - 1
-      return nil unless @frames[level]
-      @frames[level][index]
+    def last_frame
+      @frames.last
     end
 
     def new_frame(locals:, svar:, special:, scope:)
@@ -55,7 +77,8 @@ module RubyZen
         locals: locals,
         svar: svar,
         special: special,
-        scope: scope
+        scope: scope,
+        previous_frame: @frames.last
       )
       @frames.push(frame)
     end
