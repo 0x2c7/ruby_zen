@@ -21,7 +21,6 @@ module RubyZen::Interpreters
         handle_prepend(vm)
       else
         handle_method_call(vm, instruction)
-        logger.debug("Method #{call_info.mid} not handled.")
       end
     end
 
@@ -104,6 +103,8 @@ module RubyZen::Interpreters
         vm.environment.push(
           receiver.class_method_object(call_info.mid)&.return_object
         )
+      else
+        vm.environment.push(receiver)
       end
     end
   end

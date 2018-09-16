@@ -1,6 +1,8 @@
 module RubyZen::Interpreters
   class PopInterpreter < Base
-    def handle_pop(vm, _instruction)
+    interpret 'pop'
+
+    def call(vm, _instruction)
       vm.environment.pop
     end
   end
