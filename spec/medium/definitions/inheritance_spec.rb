@@ -92,10 +92,9 @@ RSpec.describe 'index class with the involvement of inheritance' do
   end
 
   let(:engine) { RubyZen::Engine.new(logger: TestingLogger.new(STDOUT)) }
-  let(:iseq) { YarvGenerator.build_from_source(code) }
 
   before do
-    engine.index_iseq(iseq)
+    engine.index_iseq(code)
   end
 
   context 'index' do

@@ -2,10 +2,9 @@ require 'spec_helper'
 
 RSpec.describe 'index module' do
   let(:engine) { RubyZen::Engine.new(logger: TestingLogger.new(STDOUT)) }
-  let(:iseq) { YarvGenerator.build_from_source(code) }
 
   before do
-    engine.index_iseq(iseq)
+    engine.index_iseq(code)
   end
 
   context 'class methods' do

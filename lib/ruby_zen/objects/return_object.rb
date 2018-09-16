@@ -13,6 +13,10 @@ module RubyZen
       @possibilities.add(object)
     end
 
+    def empty?
+      @possibilities.empty?
+    end
+
     def to_set
       possibilities = Set.new
       @possibilities.each do |possibility|

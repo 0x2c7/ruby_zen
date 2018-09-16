@@ -1,8 +1,8 @@
 require "bundler/setup"
-require "ruby_zen"
 require 'byebug'
 require 'rspec'
 require 'logger'
+require 'ruby_zen'
 
 class TestingLogger
   def initialize(output)

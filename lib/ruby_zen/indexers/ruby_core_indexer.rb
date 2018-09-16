@@ -125,17 +125,18 @@ module RubyZen::Indexers
     def index_return_value(method)
       return_objects = []
       return_value = []
+      method_name = method.name.to_s
 
-      if INSTANTIATION_METHODS.include?(method.name)
+      if INSTANTIATION_METHODS.include?(method_name)
         return_objects << method.owner
-      elsif SIZE_METHODS.include?(method.name)
+      elsif SIZE_METHODS.include?(method_name)
         return_objects << @engine.fetch_class('Integer')
-      elsif method.name.end_with?('?') || COMPARISON_METHODS.include?(method.name)
+      elsif method_name.end_with?('?') || COMPARISON_METHODS.include?(method_name)
         return_objects << @engine.fetch_class('TrueClass')
         return_objects << @engine.fetch_class('FalseClass')
-      elsif method.name == 'json_create'
+      elsif method_name == 'json_create'
         return_objects << method.owner
-      elsif method.name == 'as_json'
+      elsif method_name == 'as_json'
         return_objects << @engine.fetch_class('Hash')
       elsif method.call_seq
         if method.call_seq =~ /->/
@@ -166,15 +167,15 @@ module RubyZen::Indexers
           end
           return_objects += parse_return_value(method, return_value.flatten.uniq)
         elsif method.call_seq =~ /to_/
-          return_objects = parse_transform_method(method.name[/(?<=_).*/])
-        elsif method.name =~ /exit|abort/
+          return_objects = parse_transform_method(method_name[/(?<=_).*/])
+        elsif method_name =~ /exit|abort/
           return_objects << @engine.fetch_class('Object')
         else
           return_objects << @engine.fetch_class('Object')
         end
-      elsif method.name =~ /to_/
-        return_objects = parse_transform_method(method.name[/(?<=_).*/])
-      elsif method.name =~ /exit|abort/
+      elsif method_name =~ /to_/
+        return_objects = parse_transform_method(method_name[/(?<=_).*/])
+      elsif method_name =~ /exit|abort/
         return_objects << @engine.fetch_class('Object')
       else
         return_objects << @engine.fetch_class('Object')

@@ -19,9 +19,9 @@ module RubyZen
       @logger.info('RubyZen is ready!')
     end
 
-    def index_iseq(iseq)
+    def index_iseq(code)
       RubyZen::Indexers::IseqIndexer.new(
-        iseq,
+        code,
         engine: self,
         logger: @logger
       ).start
