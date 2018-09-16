@@ -20,6 +20,7 @@ module RubyZen::Interpreters
       when :prepend
         handle_prepend(vm)
       else
+        handle_method_call(vm, instruction)
         logger.debug("Method #{call_info.mid} not handled.")
       end
     end
@@ -89,6 +90,21 @@ module RubyZen::Interpreters
       receiver = vm.environment.pop
 
       receiver.prepend_module(module_definition)
+    end
+
+    def handle_method_call(vm, instruction)
+      call_info = instruction.operands.first
+      _params = vm.environment.pop_n(call_info.orig_argc)
+      receiver = vm.environment.pop
+      if receiver.is_a?(RubyZen::MaybeClassObject)
+        vm.environment.push(
+          receiver.to_set.first&.instance_method_object(call_info.mid)&.return_object
+        )
+      elsif receiver.is_a?(RubyZen::ClassObject)
+        vm.environment.push(
+          receiver.class_method_object(call_info.mid)&.return_object
+        )
+      end
     end
   end
 end

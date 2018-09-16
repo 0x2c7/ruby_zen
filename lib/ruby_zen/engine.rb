@@ -1,7 +1,7 @@
 module RubyZen
   class Engine
     INTERNAL_CLASSES = %w[
-      Kernel Method Object BasicObject Encoding Comparable Enumerable String
+      Kernel Method Object NilClass FalseClass TrueClass BasicObject Encoding Comparable Enumerable String
       Exception Numeric Bignum Array Hash Struct Regexp Range IO Dir Time Random
       Proc Binding Math GC Enumerator Thread
     ].freeze
