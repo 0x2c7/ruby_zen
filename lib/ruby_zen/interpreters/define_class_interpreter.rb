@@ -11,10 +11,7 @@ module RubyZen::Interpreters
 
       class_value = create_class_object(vm, class_name, superclass, cbase, flags)
 
-      vm.environment.new_frame
-      vm.environment.push(class_value)
-      vm.scope.push(class_value)
-      vm.run(class_body)
+      vm.run(class_body, class_value)
     end
 
     private

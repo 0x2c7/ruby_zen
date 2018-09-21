@@ -3,8 +3,10 @@ module RubyZen::Interpreters
     interpret 'leave'
 
     def call(vm, _instruction)
-      vm.environment.leave_frame
-      vm.scope.pop
+      if vm.environment.scope.is_a?(RubyZen::MethodObject)
+        return_object = vm.environment.last_frame.pop
+        vm.environment.scope.add_return_object(return_object)
+      end
     end
   end
 end

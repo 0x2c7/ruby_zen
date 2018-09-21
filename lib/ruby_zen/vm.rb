@@ -1,20 +1,33 @@
 module RubyZen
   class VM
-    attr_reader :engine, :environment, :scope
+    attr_reader :engine, :environment
 
-    def initialize(engine:, scope: nil, logger:, interpreter_registry:)
+    NIL_CLASS = 'NilClass'.freeze
+
+    def initialize(engine:, logger:, interpreter_registry:)
       @engine = engine
 
-      @environment = RubyZen::DoubleStack.new
-      @scope = [scope]
-
+      @environment = RubyZen::FrameStack.new
       @logger = logger
       @interpreter_registry = interpreter_registry
     end
 
-    def run(iseq)
+    def run(iseq, scope = nil)
       @logger.info("Indexing iseq `#{iseq.label}`, type: `#{iseq.type}`, path: `#{iseq.path}`")
 
+      # Push new frame
+      @environment.new_frame(
+        locals: iseq.local_table.map do |_variable|
+          RubyZen::MaybeClassObject.new(
+            [engine.define_class(NIL_CLASS)]
+          )
+        end,
+        svar: nil,
+        special: nil,
+        scope: scope
+      )
+
+      # Run through the instructions
       iseq.instructions.each do |instruction|
         interpreter = @interpreter_registry.interpreter_for(instruction.name)
         if interpreter.nil?
@@ -24,6 +37,8 @@ module RubyZen
           interpreter.call(self, instruction)
         end
       end
+
+      @environment.leave_frame
     end
 
     def define_instance_method(receiver, method_name, method_body)
@@ -41,6 +56,7 @@ module RubyZen
       receiver.add_method(method_object)
 
       @logger.info("Detect instance method `#{method_name}` of class `#{receiver}`")
+      method_object
     end
 
     def define_class_method(receiver, method_name, method_body)

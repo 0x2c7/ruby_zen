@@ -1,6 +1,8 @@
 module RubyZen::Interpreters
   class PopInterpreter < Base
-    def handle_pop(vm, _instruction)
+    interpret 'pop'
+
+    def call(vm, _instruction)
       vm.environment.pop
     end
   end
@@ -33,7 +35,7 @@ module RubyZen::Interpreters
     interpret 'putself'
 
     def call(vm, instruction)
-      vm.environment.push(vm.scope.last)
+      vm.environment.push(vm.environment.scope)
     end
   end
 
@@ -43,11 +45,11 @@ module RubyZen::Interpreters
     def call(vm, instruction)
       case instruction.operands[0]
       when 1
-        vm.environment.push(vm.scope.first)
+        vm.environment.push(vm.environment.root_scope)
       when 2
         vm.environment.push(nil)
       when 3
-        vm.environment.push(vm.scope.last)
+        vm.environment.push(vm.environment.scope)
       else
         vm.environment.push(nil)
       end

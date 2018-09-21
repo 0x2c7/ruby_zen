@@ -20,24 +20,21 @@ module RubyZen::Interpreters
       when :prepend
         handle_prepend(vm)
       else
-        logger.debug("Method #{call_info.mid} not handled.")
+        handle_method_call(vm, instruction)
       end
     end
 
     private
 
     def handle_define_method(vm)
-      receiver = vm.scope.last
+      receiver = vm.environment.scope
       method_body = vm.environment.pop
       method_name = vm.environment.pop
 
       method_object = vm.define_instance_method(receiver, method_name, method_body)
 
       if method_body.is_a?(YarvGenerator::Iseq)
-        vm.environment.new_frame
-        vm.environment.push(method_object)
-        vm.scope.push(vm.scope.last)
-        vm.run(method_body)
+        vm.run(method_body, method_object)
       end
 
       vm.environment.push(method_object)
@@ -51,10 +48,7 @@ module RubyZen::Interpreters
       method_object = vm.define_class_method(receiver, method_name, method_body)
 
       if method_body.is_a?(YarvGenerator::Iseq)
-        vm.environment.new_frame
-        vm.environment.push(method_object)
-        vm.scope.push(vm.scope.last)
-        vm.run(method_body)
+        vm.run(method_body, method_object)
       end
 
       vm.environment.push(method_object)
@@ -95,6 +89,23 @@ module RubyZen::Interpreters
       receiver = vm.environment.pop
 
       receiver.prepend_module(module_definition)
+    end
+
+    def handle_method_call(vm, instruction)
+      call_info = instruction.operands.first
+      _params = vm.environment.pop_n(call_info.orig_argc)
+      receiver = vm.environment.pop
+      if receiver.is_a?(RubyZen::MaybeClassObject)
+        vm.environment.push(
+          receiver.to_set.first&.instance_method_object(call_info.mid)&.return_object
+        )
+      elsif receiver.is_a?(RubyZen::ClassObject)
+        vm.environment.push(
+          receiver.class_method_object(call_info.mid)&.return_object
+        )
+      else
+        vm.environment.push(receiver)
+      end
     end
   end
 end

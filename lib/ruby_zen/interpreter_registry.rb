@@ -1,5 +1,5 @@
 module RubyZen
-  class InterpreterRegistry
+  class InterpreterMatcher
     attr_reader :pattern, :interpreter
 
     def initialize(pattern, interpreter)
@@ -24,28 +24,25 @@ module RubyZen
           registry[key] = value.new(logger: logger)
         end,
         interpreter_matchers: @interpreter_matchers.map do |matcher|
-          {
-            pattern: matcher.pattern,
-            interpreter: matcher.interpreter.newA(logger: logger)
-          }
+          InterpreterMatcher.new(
+            matcher.pattern,
+            matcher.interpreter.new(logger: logger)
+          )
         end
       )
     end
 
-    def add(instruction, intercepter)
+    def add(instruction, interpreter)
       case instruction.class.name
       when 'String', 'Symbol'
         instruction_name = instruction.to_s
         if @interpreters.key?(instruction_name)
           raise "Interpreter for `#{instruction_name}` instruction already exists!"
         else
-          @interpreters[instruction_name] = intercepter
+          @interpreters[instruction_name] = interpreter
         end
       when 'Regexp'
-        @interpreter_matchers << InterpreterMatcher.new(
-          pattern: instruction,
-          interpreter: interpreter
-        )
+        @interpreter_matchers << InterpreterMatcher.new(instruction,interpreter)
       else
         raise 'Invalid interpreter matching'
       end
@@ -54,9 +51,9 @@ module RubyZen
     def interpreter_for(instruction)
       return @interpreters[instruction] if @interpreters.key?(instruction)
 
-      @interpreter_matchers.find do |matcher|
+      matcher = @interpreter_matchers.find do |matcher|
         instruction =~ matcher.pattern
-      end
+      end&.interpreter
     end
   end
 end
