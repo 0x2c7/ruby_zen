@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe RubyZen::MaybeClassObject do
+RSpec.describe RubyZen::MaybeObject do
   subject { described_class.new }
 
   describe '#to_set' do

@@ -95,7 +95,7 @@ module RubyZen::Interpreters
       call_info = instruction.operands.first
       _params = vm.environment.pop_n(call_info.orig_argc)
       receiver = vm.environment.pop
-      if receiver.is_a?(RubyZen::MaybeClassObject)
+      if receiver.is_a?(RubyZen::MaybeInstanceObject)
         vm.environment.push(
           receiver.to_set.first&.instance_method_object(call_info.mid)&.return_object
         )

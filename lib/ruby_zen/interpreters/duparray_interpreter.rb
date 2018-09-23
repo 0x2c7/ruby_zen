@@ -6,7 +6,7 @@ module RubyZen::Interpreters
 
     def call(vm, instruction)
       vm.environment.push(
-        RubyZen::MaybeClassObject.new(
+        RubyZen::MaybeInstanceObject.new(
           vm.engine.define_class(ARRAY_CLASS)
         )
       )
