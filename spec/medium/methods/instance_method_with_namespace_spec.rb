@@ -36,13 +36,13 @@ RSpec.describe 'index instance methods' do
   end
 
   it 'supports nested module syntax' do
-    test_method = engine.fetch_class("Hello::World").instance_method_object(:start)
+    test_method = engine.fetch_class("Hello::World").instance_method(:start)
     expect(test_method.name).to eql(:start)
     expect(test_method.owner.fullname).to eql('Hello::World')
     expect(test_method.parameters).to eql([])
     expect(test_method.super_method).to eql(nil)
 
-    test_method = engine.fetch_class("Hello::World::Greet").instance_method_object(:say_hello)
+    test_method = engine.fetch_class("Hello::World::Greet").instance_method(:say_hello)
     expect(test_method.name).to eql(:say_hello)
     expect(test_method.owner.fullname).to eql('Hello::World::Greet')
     expect(test_method.parameters).to eql([])
@@ -50,7 +50,7 @@ RSpec.describe 'index instance methods' do
   end
 
   it 'supports compact syntax' do
-    test_method = engine.fetch_class("Hello::World::Greet").instance_method_object(:say_bye)
+    test_method = engine.fetch_class("Hello::World::Greet").instance_method(:say_bye)
     expect(test_method.name).to eql(:say_bye)
     expect(test_method.owner.fullname).to eql('Hello::World::Greet')
     expect(test_method.parameters).to eql([])
@@ -58,7 +58,7 @@ RSpec.describe 'index instance methods' do
   end
 
   it 'supports nested compact syntax' do
-    test_method = engine.fetch_class("Hello::World::Meeting").instance_method_object(:discuss)
+    test_method = engine.fetch_class("Hello::World::Meeting").instance_method(:discuss)
     expect(test_method.name).to eql(:discuss)
     expect(test_method.owner.fullname).to eql('Hello::World::Meeting')
     expect(test_method.parameters).to eql([])

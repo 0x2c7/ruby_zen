@@ -28,42 +28,42 @@ module RubyZen
       @method_objects
     end
 
-    def instance_method_object(method_id)
-      instance_method_objects[method_id]
+    def instance_method(method_id)
+      instance_methods[method_id]
     end
 
-    def instance_method_objects
-      methods = superclass.nil? ? {} : superclass.instance_method_objects
+    def instance_methods
+      methods = superclass.nil? ? {} : superclass.instance_methods
 
       @included_modules.each do |_module_name, module_definition|
-        methods.merge!(module_definition.instance_method_objects)
+        methods.merge!(module_definition.instance_methods)
       end
 
       methods.merge!(@method_objects)
 
       @prepended_modules.each do |_module_name, module_definition|
-        methods.merge!(module_definition.instance_method_objects)
+        methods.merge!(module_definition.instance_methods)
       end
 
       methods
     end
 
-    def class_method_object(method_id)
-      class_method_objects[method_id]
+    def class_method(method_id)
+      class_methods[method_id]
     end
 
-    def class_method_objects(as_module = false)
-      methods = superclass.nil? ? {} : superclass.class_method_objects
+    def class_methods(as_module = false)
+      methods = superclass.nil? ? {} : superclass.class_methods
 
       if is_module && !as_module
-        methods.merge!(instance_method_objects)
+        methods.merge!(instance_methods)
       else
         @extended_modules.each do |_module_name, module_definition|
-          methods.merge!(module_definition.instance_method_objects)
+          methods.merge!(module_definition.instance_methods)
         end
       end
 
-      methods.merge!(singleton_class.instance_method_objects)
+      methods.merge!(singleton_class.instance_methods)
     end
 
     def add_method(method_object)

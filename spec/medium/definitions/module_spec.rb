@@ -57,7 +57,7 @@ RSpec.describe 'index module' do
     end
 
     it 'supports normal definition' do
-      test_method = engine.fetch_class(module_name).instance_method_object(:greet)
+      test_method = engine.fetch_class(module_name).instance_method(:greet)
       expect(test_method.name).to eql(:greet)
       expect(test_method.owner.fullname).to eql('SampleModule')
       expect(test_method.parameters).to eql([[:req, :greeting]])
@@ -65,7 +65,7 @@ RSpec.describe 'index module' do
     end
 
     it 'supports "self.method" syntax' do
-      test_method = engine.fetch_class(module_name).class_method_object(:clone)
+      test_method = engine.fetch_class(module_name).class_method(:clone)
       expect(test_method.name).to eql(:clone)
       expect(test_method.owner.fullname).to eql('SampleModule')
       expect(test_method.parameters).to eql([[:req, :source]])
@@ -74,7 +74,7 @@ RSpec.describe 'index module' do
 
     context 'supports "class << self" syntax"' do
       it 'supports normal definition' do
-        test_method = engine.fetch_class(module_name).class_method_object(:copy)
+        test_method = engine.fetch_class(module_name).class_method(:copy)
         expect(test_method.name).to eql(:copy)
         expect(test_method.owner.fullname).to eql('SampleModule')
         expect(test_method.parameters).to eql([[:req, :source]])
@@ -82,7 +82,7 @@ RSpec.describe 'index module' do
       end
 
       it 'supports "define_method"' do
-        test_method = engine.fetch_class(module_name).class_method_object(:compare)
+        test_method = engine.fetch_class(module_name).class_method(:compare)
         expect(test_method.name).to eql(:compare)
         expect(test_method.owner.fullname).to eql('SampleModule')
         expect(test_method.parameters).to eql([[:req, :other]])
@@ -90,7 +90,7 @@ RSpec.describe 'index module' do
       end
 
       it 'supports "define_method" from method instance' do
-        test_method = engine.fetch_class(module_name).class_method_object(:copy_2)
+        test_method = engine.fetch_class(module_name).class_method(:copy_2)
         expect(test_method.name).to eql(:copy_2)
         expect(test_method.owner.fullname).to eql('SampleModule')
         expect(test_method.parameters).to eql([[:req, :source]])
@@ -98,7 +98,7 @@ RSpec.describe 'index module' do
       end
 
       it 'supports "define_method" from a method proc' do
-        test_method = engine.fetch_class(module_name).class_method_object(:copy_3)
+        test_method = engine.fetch_class(module_name).class_method(:copy_3)
         expect(test_method.name).to eql(:copy_3)
         expect(test_method.owner.fullname).to eql('SampleModule')
         expect(test_method.parameters).to eql([[:req, :source]])
@@ -106,7 +106,7 @@ RSpec.describe 'index module' do
       end
 
       it 'supports "define_method" from an internal method instance' do
-        test_method = engine.fetch_class(module_name).class_method_object(:copy_4)
+        test_method = engine.fetch_class(module_name).class_method(:copy_4)
         expect(test_method.name).to eql(:copy_4)
         expect(test_method.owner.fullname).to eql('SampleModule')
         expect(test_method.parameters).to eql([[:req, :source]])
@@ -115,7 +115,7 @@ RSpec.describe 'index module' do
     end
 
     it 'supports "define_singleton_method" syntax' do
-      test_method = engine.fetch_class(module_name).class_method_object(:destroy)
+      test_method = engine.fetch_class(module_name).class_method(:destroy)
       expect(test_method.name).to eql(:destroy)
       expect(test_method.owner.fullname).to eql('SampleModule')
       expect(test_method.parameters).to eql([[:req, :force]])
@@ -123,7 +123,7 @@ RSpec.describe 'index module' do
     end
 
     it 'supports "class << SampleModule" syntax' do
-      test_method = engine.fetch_class(module_name).class_method_object(:build)
+      test_method = engine.fetch_class(module_name).class_method(:build)
       expect(test_method.name).to eql(:build)
       expect(test_method.owner.fullname).to eql('SampleModule')
       expect(test_method.parameters).to eql([[:req, :data]])
@@ -131,7 +131,7 @@ RSpec.describe 'index module' do
     end
 
     it 'supports "def SampleModule.method" syntax' do
-      test_method = engine.fetch_class(module_name).class_method_object(:seal)
+      test_method = engine.fetch_class(module_name).class_method(:seal)
       expect(test_method.name).to eql(:seal)
       expect(test_method.owner.fullname).to eql('SampleModule')
       expect(test_method.parameters).to eql([[:req, :key]])
@@ -237,7 +237,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible instance methods' do
-        instance_methods = indexed_module_one.instance_method_objects
+        instance_methods = indexed_module_one.instance_methods
 
         expect(instance_methods.length).to eq(5)
         expect(instance_methods[:sing].owner).to eq(indexed_module_four)
@@ -248,7 +248,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = indexed_module_one.class_method_objects(true)
+        class_methods = indexed_module_one.class_methods(true)
 
         expect(class_methods.length).to eq(7)
         expect(class_methods[:sing].owner).to eq(indexed_module_four)
@@ -278,7 +278,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible instance methods' do
-        instance_methods = indexed_module_two.instance_method_objects
+        instance_methods = indexed_module_two.instance_methods
 
         expect(instance_methods.length).to eq(4)
         expect(instance_methods[:sing].owner).to eq(indexed_module_four)
@@ -288,7 +288,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = indexed_module_two.class_method_objects(true)
+        class_methods = indexed_module_two.class_methods(true)
 
         expect(class_methods.length).to eq(2)
         expect(class_methods[:sing].owner).to eq(indexed_module_two.singleton_class)
@@ -318,7 +318,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible instance methods' do
-        instance_methods = indexed_module_three.instance_method_objects
+        instance_methods = indexed_module_three.instance_methods
 
         expect(instance_methods.length).to eq(7)
         expect(instance_methods[:sing].owner).to eq(indexed_module_four)
@@ -331,7 +331,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = indexed_module_three.class_method_objects(true)
+        class_methods = indexed_module_three.class_methods(true)
 
         expect(class_methods.length).to eq(5)
         expect(class_methods[:float].owner).to eq(indexed_module_one)
@@ -348,7 +348,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible instance methods' do
-        instance_methods = indexed_module_four.instance_method_objects
+        instance_methods = indexed_module_four.instance_methods
 
         expect(instance_methods.length).to eq(2)
         expect(instance_methods[:sing].owner).to eq(indexed_module_four)
@@ -356,7 +356,7 @@ RSpec.describe 'index module' do
       end
 
       it 'returns correct accessible class methods' do
-        class_methods = indexed_module_four.class_method_objects(true)
+        class_methods = indexed_module_four.class_methods(true)
 
         expect(class_methods.length).to eq(2)
         expect(class_methods[:sing].owner).to eq(indexed_module_four.singleton_class)

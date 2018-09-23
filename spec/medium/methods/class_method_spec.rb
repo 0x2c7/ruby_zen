@@ -46,7 +46,7 @@ RSpec.describe 'index class methods' do
   end
 
   it 'supports "self.method" syntax' do
-    test_method = engine.fetch_class(class_name).class_method_object(:clone)
+    test_method = engine.fetch_class(class_name).class_method(:clone)
     expect(test_method.name).to eql(:clone)
     expect(test_method.owner.fullname).to eql('Contract')
     expect(test_method.parameters).to eql([[:req, :source]])
@@ -55,7 +55,7 @@ RSpec.describe 'index class methods' do
 
   context 'supports "class << self" syntax"' do
     it 'supports normal definition' do
-      test_method = engine.fetch_class(class_name).class_method_object(:copy)
+      test_method = engine.fetch_class(class_name).class_method(:copy)
       expect(test_method.name).to eql(:copy)
       expect(test_method.owner.fullname).to eql('Contract')
       expect(test_method.parameters).to eql([[:req, :source]])
@@ -63,7 +63,7 @@ RSpec.describe 'index class methods' do
     end
 
     it 'supports "define_method"' do
-      test_method = engine.fetch_class(class_name).class_method_object(:compare)
+      test_method = engine.fetch_class(class_name).class_method(:compare)
       expect(test_method.name).to eql(:compare)
       expect(test_method.owner.fullname).to eql('Contract')
       expect(test_method.parameters).to eql([[:req, :other]])
@@ -71,7 +71,7 @@ RSpec.describe 'index class methods' do
     end
 
     it 'supports "define_method" from method instance' do
-      test_method = engine.fetch_class(class_name).class_method_object(:copy_2)
+      test_method = engine.fetch_class(class_name).class_method(:copy_2)
       expect(test_method.name).to eql(:copy_2)
       expect(test_method.owner.fullname).to eql('Contract')
       expect(test_method.parameters).to eql([[:req, :source]])
@@ -79,7 +79,7 @@ RSpec.describe 'index class methods' do
     end
 
     it 'supports "define_method" from a method proc' do
-      test_method = engine.fetch_class(class_name).class_method_object(:copy_3)
+      test_method = engine.fetch_class(class_name).class_method(:copy_3)
       expect(test_method.name).to eql(:copy_3)
       expect(test_method.owner.fullname).to eql('Contract')
       expect(test_method.parameters).to eql([[:req, :source]])
@@ -87,7 +87,7 @@ RSpec.describe 'index class methods' do
     end
 
     it 'supports "define_method" from an internal method instance' do
-      test_method = engine.fetch_class(class_name).class_method_object(:copy_4)
+      test_method = engine.fetch_class(class_name).class_method(:copy_4)
       expect(test_method.name).to eql(:copy_4)
       expect(test_method.owner.fullname).to eql('Contract')
       expect(test_method.parameters).to eql([[:req, :source]])
@@ -96,7 +96,7 @@ RSpec.describe 'index class methods' do
   end
 
   it 'supports "define_singleton_method" syntax' do
-    test_method = engine.fetch_class(class_name).class_method_object(:destroy)
+    test_method = engine.fetch_class(class_name).class_method(:destroy)
     expect(test_method.name).to eql(:destroy)
     expect(test_method.owner.fullname).to eql('Contract')
     expect(test_method.parameters).to eql([[:req, :force]])
@@ -104,7 +104,7 @@ RSpec.describe 'index class methods' do
   end
 
   it 'supports "class << Contract" syntax' do
-    test_method = engine.fetch_class(class_name).class_method_object(:build)
+    test_method = engine.fetch_class(class_name).class_method(:build)
     expect(test_method.name).to eql(:build)
     expect(test_method.owner.fullname).to eql('Contract')
     expect(test_method.parameters).to eql([[:req, :data]])
@@ -112,7 +112,7 @@ RSpec.describe 'index class methods' do
   end
 
   it 'supports "def Contract.method" syntax' do
-    test_method = engine.fetch_class(class_name).class_method_object(:seal)
+    test_method = engine.fetch_class(class_name).class_method(:seal)
     expect(test_method.name).to eql(:seal)
     expect(test_method.owner.fullname).to eql('Contract')
     expect(test_method.parameters).to eql([[:req, :key]])

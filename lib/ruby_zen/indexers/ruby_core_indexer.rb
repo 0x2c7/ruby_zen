@@ -99,9 +99,9 @@ module RubyZen::Indexers
     def define_method_object(method, klass)
       if method.is_alias_for
         method_object = if method.singleton
-                          klass.class_method_object(method.name)
+                          klass.class_method(method.name)
                         else
-                          klass.instance_method_object(method.name)
+                          klass.instance_method(method.name)
                         end
         if method_object
           method_object = method_object.clone

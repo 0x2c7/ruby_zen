@@ -58,7 +58,7 @@ module RubyZen::Interpreters
       method_name = vm.environment.pop
       receiver = vm.environment.pop
 
-      method_object = receiver.instance_method_object(method_name)
+      method_object = receiver.instance_method(method_name)
       vm.environment.push(method_object)
     end
 
@@ -66,7 +66,7 @@ module RubyZen::Interpreters
       method_name = vm.environment.pop
       receiver = vm.environment.pop
 
-      method_object = receiver.class_method_object(method_name)
+      method_object = receiver.class_method(method_name)
       vm.environment.push(method_object)
     end
 
@@ -97,11 +97,11 @@ module RubyZen::Interpreters
       receiver = vm.environment.pop
       if receiver.is_a?(RubyZen::MaybeInstanceObject)
         vm.environment.push(
-          receiver.to_set.first&.instance_method_object(call_info.mid)&.return_object
+          receiver.to_set.first&.instance_method(call_info.mid)&.return_object
         )
       elsif receiver.is_a?(RubyZen::ClassObject)
         vm.environment.push(
-          receiver.class_method_object(call_info.mid)&.return_object
+          receiver.class_method(call_info.mid)&.return_object
         )
       else
         vm.environment.push(receiver)
