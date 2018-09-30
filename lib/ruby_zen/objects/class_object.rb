@@ -1,7 +1,8 @@
 module RubyZen
   class ClassObject
     attr_reader :name, :fullname, :is_singleton, :singleton_class,
-                :included_modules, :extended_modules, :prepended_modules
+                :included_modules, :extended_modules, :prepended_modules,
+                :instance
     attr_accessor :is_module, :superclass, :namespace, :visibility
 
     def initialize(fullname, is_module: false, is_singleton: false, superclass: nil, namespace: nil)
@@ -16,6 +17,8 @@ module RubyZen
       @included_modules = {}
       @extended_modules = {}
       @prepended_modules = {}
+
+      @instance = RubyZen::InstanceObject.new(self)
 
       unless is_singleton
         @singleton_class = RubyZen::ClassObject.new(

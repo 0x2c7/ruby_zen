@@ -18,8 +18,8 @@ module RubyZen
       # Push new frame
       @environment.new_frame(
         locals: iseq.local_table.map do |_variable|
-          RubyZen::MaybeInstanceObject.new(
-            [engine.define_class(NIL_CLASS)]
+          RubyZen::MaybeObject.new(
+            [engine.define_class(NIL_CLASS)&.instance]
           )
         end,
         svar: nil,

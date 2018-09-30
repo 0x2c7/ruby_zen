@@ -6,11 +6,10 @@ require 'ruby_zen/indexers/class_indexer'
 require 'ruby_zen/indexers/iseq_indexer'
 require 'ruby_zen/indexers/ruby_core_indexer'
 
+require 'ruby_zen/objects/instance_object'
 require 'ruby_zen/objects/class_object'
 require 'ruby_zen/objects/method_object'
 require 'ruby_zen/objects/maybe_object'
-require 'ruby_zen/objects/maybe_class_object'
-require 'ruby_zen/objects/maybe_instance_object'
 
 require 'ruby_zen/interpreter_registry'
 require 'ruby_zen/interpreters/base'
