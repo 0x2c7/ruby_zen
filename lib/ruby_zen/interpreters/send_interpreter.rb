@@ -22,7 +22,7 @@ module RubyZen::Interpreters
 
       method_object = vm.define_instance_method(receiver, method_name, method_body)
 
-      vm.run(method_body, method_object)
+      vm.run(method_body, scope: method_object, self_pointer: receiver.instance)
 
       vm.environment.push(method_object)
     end
@@ -33,7 +33,7 @@ module RubyZen::Interpreters
 
       method_object = vm.define_class_method(receiver, method_name, method_body)
 
-      vm.run(method_body, method_object)
+      vm.run(method_body, scope: method_object, self_pointer: receiver)
 
       vm.environment.push(method_object)
     end

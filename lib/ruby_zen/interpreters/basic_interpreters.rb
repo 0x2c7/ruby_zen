@@ -35,7 +35,7 @@ module RubyZen::Interpreters
     interpret 'putself'
 
     def call(vm, instruction)
-      vm.environment.push(vm.environment.scope)
+      vm.environment.push(vm.environment.self_pointer)
     end
   end
 

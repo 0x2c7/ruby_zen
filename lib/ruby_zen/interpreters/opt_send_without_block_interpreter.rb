@@ -34,7 +34,7 @@ module RubyZen::Interpreters
       method_object = vm.define_instance_method(receiver, method_name, method_body)
 
       if method_body.is_a?(YarvGenerator::Iseq)
-        vm.run(method_body, method_object)
+        vm.run(method_body, scope: method_object, self_pointer: receiver.instance)
       end
 
       vm.environment.push(method_object)
@@ -48,7 +48,7 @@ module RubyZen::Interpreters
       method_object = vm.define_class_method(receiver, method_name, method_body)
 
       if method_body.is_a?(YarvGenerator::Iseq)
-        vm.run(method_body, method_object)
+        vm.run(method_body, scope: method_object, self_pointer: receiver)
       end
 
       vm.environment.push(method_object)
@@ -96,13 +96,11 @@ module RubyZen::Interpreters
       _params = vm.environment.pop_n(call_info.orig_argc)
       receiver = vm.environment.pop
       if receiver.is_a?(RubyZen::MaybeObject)
-        vm.environment.push(
-          receiver.to_set.first&.instance_method(call_info.mid)&.return_object
-        )
+        vm.environment.push(receiver.return_object_for(call_info.mid))
       elsif receiver.is_a?(RubyZen::ClassObject)
-        vm.environment.push(
-          receiver.class_method(call_info.mid)&.return_object
-        )
+        vm.environment.push(receiver.class_method(call_info.mid)&.return_object)
+      elsif receiver.is_a?(RubyZen::InstanceObject)
+        vm.environment.push(receiver.method(call_info.mid)&.return_object)
       else
         vm.environment.push(receiver)
       end

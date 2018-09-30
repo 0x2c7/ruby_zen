@@ -12,7 +12,7 @@ module RubyZen
       @interpreter_registry = interpreter_registry
     end
 
-    def run(iseq, scope = nil)
+    def run(iseq, scope: nil, self_pointer: nil)
       @logger.info("Indexing iseq `#{iseq.label}`, type: `#{iseq.type}`, path: `#{iseq.path}`")
 
       # Push new frame
@@ -24,7 +24,8 @@ module RubyZen
         end,
         svar: nil,
         special: nil,
-        scope: scope
+        scope: scope,
+        self_pointer: self_pointer
       )
 
       # Run through the instructions

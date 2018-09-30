@@ -9,9 +9,9 @@ module RubyZen::Interpreters
       class_name, class_body, flags = instruction.operands
       class_name = "#{cbase.fullname}::#{class_name}" unless cbase.nil?
 
-      class_value = create_class_object(vm, class_name, superclass, cbase, flags)
+      class_object = create_class_object(vm, class_name, superclass, cbase, flags)
 
-      vm.run(class_body, class_value)
+      vm.run(class_body, scope: class_object, self_pointer: class_object)
     end
 
     private

@@ -36,5 +36,24 @@ module RubyZen
       end
       possibilities
     end
+
+    def to_a
+      to_set.to_a
+    end
+
+    def return_object_for(method_id)
+      return_object = self.class.new
+      to_a.each do |object|
+        case object.class.name
+        when ::RubyZen::MaybeObject.name
+          return_object.add(object.return_object_for(method_id))
+        when ::RubyZen::ClassObject.name
+          return_object.add(object.class_method(method_id)&.return_object)
+        when ::RubyZen::InstanceObject.name
+          return_object.add(object.method(method_id)&.return_object)
+        end
+      end
+      return_object
+    end
   end
 end

@@ -1,9 +1,9 @@
 module RubyZen
   class Frame
-    attr_reader :stack, :ep, :scope, :previous_frame
+    attr_reader :stack, :ep, :scope, :self_pointer, :previous_frame
 
     def initialize(
-      locals:, svar:, special:, scope:,
+      locals:, svar:, special:, scope:, self_pointer:,
       previous_frame: nil
     )
       @stack = []
@@ -14,6 +14,7 @@ module RubyZen
       @stack.push(special)
       @ep = @stack.length - 1
       @scope = scope
+      @self_pointer = self_pointer
       @stack.push(scope)
       @previous_frame = previous_frame
     end
@@ -40,24 +41,28 @@ module RubyZen
       @frames = []
     end
 
+    def last_frame
+      @frames.last
+    end
+
     def push(val)
-      @frames.last.push(val)
+      last_frame.push(val)
     end
 
     def pop
-      @frames.last.pop
+      last_frame.pop
     end
 
     def pop_n(n)
-      @frames.last.pop_n(n)
+      last_frame.pop_n(n)
     end
 
     def scope
-      @frames.last.scope
+      last_frame.scope
     end
 
     def local(level, index)
-      frame = @frames.last
+      frame = last_frame
       (0..level - 1).each do
         frame = frame.previous_frame
       end
@@ -68,17 +73,18 @@ module RubyZen
       @frames.first.scope
     end
 
-    def last_frame
-      @frames.last
+    def self_pointer
+      last_frame.self_pointer
     end
 
-    def new_frame(locals:, svar:, special:, scope:)
+    def new_frame(locals:, svar:, special:, scope:, self_pointer:)
       frame = RubyZen::Frame.new(
         locals: locals,
         svar: svar,
         special: special,
         scope: scope,
-        previous_frame: @frames.last
+        self_pointer: self_pointer,
+        previous_frame: last_frame
       )
       @frames.push(frame)
     end
